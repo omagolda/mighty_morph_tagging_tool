@@ -42,7 +42,7 @@ class Manager:
 
         self.data = self.read_unimorph()
         self.done_lemmas, self.new_data, self.replies = self.load_done()
-
+        print("Initialize freq_sort")
         self.sorted_lemmas = self.freq_sort()
 
         self.repair = False
@@ -86,6 +86,7 @@ class Manager:
                 response = None
                 while response not in self.possible_responses:
                     response = input(f"what's the transitivity of {lemma}? [p to pass, - to skip, s to save]")
+                    #breakpoint()
                     if response == 's':
                         self.dump_done()
                         response = None
@@ -212,8 +213,11 @@ class Manager:
 
     def freq_sort(self):
         path = os.path.join(vocab_dir, self.language + '.txt')
+
         if not os.path.isfile(path):
+            print(f"Warning: Reading frequency list empty")
             return []
+        print(f"Reading frequency list from {path}")
         with open(path, encoding='utf8') as f:
             return [line.strip() for line in f.readlines()]
 
