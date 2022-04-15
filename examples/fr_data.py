@@ -1,7 +1,6 @@
 import sys
 sys.path.insert(0,".")
 
-
 from utils import *
 from typing import Dict, List
 import pickle
@@ -9,8 +8,6 @@ from copy import deepcopy
 
 language = 'fr'
 
-
-uage = 'fr'
 
 person_number = {'1;SG', '1;PL', '2;SG', '2;PL', '3;SG;MASC', '3;SG;FEM',  '3;PL;MASC', '3;PL;FEM'}#,  '3;PL;NEUT','3;SG;NEUT',}
 
