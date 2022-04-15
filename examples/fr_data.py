@@ -137,7 +137,6 @@ def phonological_constrain_pronons(form, pron, type="a"):
             return pron
 
 
-
 def imperatif_pronouns(pron, type="a"):
 
     if type == "a":
@@ -198,8 +197,7 @@ class FrManager(Manager):
                                 continue
                             unimorph_match = f"V;{mood};{pers}"
                             form = table[unimorph_match]
-                            #print(f"COND: form {form} working for {unimorph_match}")
-                            # TODO: handle conditionel passé avec auxiliaire
+
                         else:
                             form = table[unimorph_match]
                             #print(f"form {form} working for {unimorph_match}")
@@ -248,7 +246,7 @@ class FrManager(Manager):
                                     #print(f"{nfin}\t{full_form}\t{full_feature}")
 
                                     # neg
-
+                                    #seed_full_form+=
                                     # COMPOUND TENSE
                                     if mood == "IND":
                                         if tense == "FUT":
@@ -300,7 +298,7 @@ class FrManager(Manager):
                                             print(f"{nfin}\t{full_form}\t{full_feature}")
 
 
-                                # TODO: create Q/N/QN
+                                # TODO: create Q/N/QN + PHONOLOGICAL CONSTRAINS ADD é !
                                 # TODO: create ad combination
                                 # --> send table + what you have done
                                 # --> Q? how do you handle intransitive?
