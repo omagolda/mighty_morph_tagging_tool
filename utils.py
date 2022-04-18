@@ -7,6 +7,7 @@ from copy import deepcopy
 unimorph_dir = 'unimorph'
 vocab_dir = 'fasttext'
 
+
 def read_mightymorph(path):
     data = {}
     with open(path, encoding='utf8') as f:
@@ -208,7 +209,7 @@ class Manager:
             for lemma in sorted(self.new_data.keys()):
                 for feats, form in self.new_data[lemma].items():
                     line = '\t'.join([lemma, form, feats])+'\n'
-                    line = line.replace('??','?')
+                    line = line.replace('??', '?')
                     f.write(line)
 
     def freq_sort(self):

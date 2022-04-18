@@ -129,16 +129,20 @@ def phonological_constrain_pronons(form, pron, type="a"):
             return pron[:-1]+"'"
         else:
             return pron+" "
-    elif type == "d":
+    elif type=="d":
         if re.match("^[aeiouyhé].*", form) and re.match(".*[aeiou]$", pron) and pron not in ["lui"]:
+
+            #raise (Exception(f"case {type} not supported "))
             return pron[:-1] + "'"
         else:
             return pron+" "
     elif type == "0":
         if re.match("^[aeiouyhé].*", form) and pron in ["je"]:
+
+            #raise (Exception(f"case {type} not supported "))
             return pron[:-1] + "'"
         else:
-            return pron + " "
+            return pron+" "
     else:
         raise(f"Type case not supported {type}")
 
@@ -156,13 +160,11 @@ def imperatif_pronouns(pron, type="a"):
 
 
 class FrManager(Manager):
-
     def create_new_table(self, response, table):
 
         nfin = table['V;NFIN']
 
         ptcp_pst = table["V.PTCP;PST"]
-
 
         new_table = {}
 
@@ -177,7 +179,7 @@ class FrManager(Manager):
                 # TODO: if else no IMPERATIVE : no future
                 for i, aspect in enumerate(aspects):
                     # TODO: ifelse
-                    if tense != "PST" and i > 0:
+                    if tense != "PST" and i>0:
                         # only going through the tensexmood one (cause aspect do not impact present and future)
                         continue
                     for pn in person_number:
@@ -287,7 +289,6 @@ class FrManager(Manager):
                                             aux_form = auxiliary_dict[aux]["IND;PST;PFV;LGSPEC1"][pers]
                                             seed_full_feature = f"IND;PST;PFV;LGSPEC1;NOM({pn});"
                                             full_feature = seed_full_feature
-
                                             _pron_writing_compound = phonological_constrain_pronons(pron=nom_prons[pn],
                                                                                                     form=aux_form,
                                                                                                     type=_response)
@@ -404,18 +405,17 @@ class FrManager(Manager):
                                                 print(f"{nfin}\t{full_form}\t{full_feature}")
 
 
-
+                                # TODO: create Q/N/QN : in a factorized and maintaable way
                                 # can we automate more:
                                 # TODO: create ad combination
                                 #
                                 # Other type of argumetns
+                                # --> send table + what you have done
+                                # --> Q? how do you handle intransitive?
+                                # --> Q? remaining reflexive ? : what else?
                                 #
 
         return new_table
-
-
-
-
 
 
 if __name__ == '__main__':
