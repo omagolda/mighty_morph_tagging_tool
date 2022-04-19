@@ -20,8 +20,11 @@ acc_prons = {'1;SG': 'me', '1;PL': 'nous', '2;SG': 'te', '2;PL': 'vous', '3;SG;M
 
 dat_prons = {'1;SG': 'me', '1;PL':'nous', '2;SG': 'te', '2;PL': 'vous', '3;SG;MASC': 'lui', '3;SG;FEM': 'lui', '3;PL': 'leur'}# '3;PL;MASC':'leur', '3;PL;FEM':'leur'}
 
+loc_pron = {'3;SG;NEUT': 'y'}# '3;PL;MASC':'leur', '3;PL;FEM':'leur'}
 
-prepos_prons = {'a': acc_prons,'d': dat_prons}
+gen_pron = {'3;SG;NEUT': 'en'}
+
+prepos_prons = {'a': acc_prons, 'd': dat_prons, 'l': loc_pron, "g": gen_pron}
 
 # reflexive_pronouns = {'1;SG': 'me', '1;PL':'nous', '2;SG': 'te', '2;PL': 'vous', '3;SG': 'se', '3;PL': 'se'}# https://francais.lingolia.com/en/grammar/pronouns/reflexive-pronouns#:~:text=The%20French%20reflexive%20pronouns%20are,English%20words%20myself%2C%20yourself%20etc.
 
@@ -31,6 +34,7 @@ prepos_prons = {'a': acc_prons,'d': dat_prons}
 #gen_prons = {'1;SG': 'meiner', '1;PL': 'unser', '2;SG': 'deiner', '2;PL': 'euer', '3;SG;MASC': 'seiner', '3;SG;FEM': 'ihrer', '3;SG;NEUT': 'seiner', '3;PL': 'ihrer', '2;FRML': 'Ihrer '}
 
 # tonique https://parlez-vous-french.com/les-pronoms-toniques-en-francais/
+
 tonique_pronouns = {'1;SG': 'moi', '1;PL':'nous', '2;SG': 'toi', '2;PL': 'vous', '3;SG;MASC': 'lui', '3;SG;FEM': 'elle',  '3;PL;MASC':'eux', '3;PL;FEM':'elles'}
 
 reflex_prons = {'1,SG': 'myself', '1,PL': 'ourselves', '2,SG': 'yourself', '2,PL': 'yourselves', '3,SG,MACS': 'himself', '3,SG,FEM': 'herself', '3,SG,NEUT': 'itself', '3,PL': 'themselves'}
@@ -129,17 +133,13 @@ def phonological_constrain_pronons(form, pron, type="a"):
             return pron[:-1]+"'"
         else:
             return pron+" "
-    elif type=="d":
+    elif type == "d":
         if re.match("^[aeiouyhé].*", form) and re.match(".*[aeiou]$", pron) and pron not in ["lui"]:
-
-            #raise (Exception(f"case {type} not supported "))
             return pron[:-1] + "'"
         else:
             return pron+" "
     elif type == "0":
         if re.match("^[aeiouyhé].*", form) and pron in ["je"]:
-
-            #raise (Exception(f"case {type} not supported "))
             return pron[:-1] + "'"
         else:
             return pron+" "

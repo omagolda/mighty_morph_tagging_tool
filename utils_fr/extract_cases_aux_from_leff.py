@@ -98,11 +98,12 @@ def extract_features_from_leff(lex_dir: Path, output_dir:str =None):
                     lex_alexina_2[lex_line[0]]["g"] = []
                 lex_alexina_2[lex_line[0]]["g"].append(get_aux(feature_lex=feature_lex_line[4]))
 
-            if re.match("<.*Loc:\(?[^,>]*\|?y\|?[^,>]*\)?.*>", feature_lex_line[3]) is not None or re.match("<.*Objà:\(?[^,>]*\|?y\|?[^,>]*\)?.*>", feature_lex_line[3]) is not None:
+            if re.match("<.*Loc:\(?[^,>]*\|?y\|?[^,>]*\)?.*>", feature_lex_line[3]) is not None: # or re.match("<.*Objà:\(?[^,>]*\|?y\|?[^,>]*\)?.*>", feature_lex_line[3]) is not None:
                 # y --> locatif
                 lex_alexina[lex_line[0]]["cases"].append("l")
                 if "l" not in lex_alexina_2[lex_line[0]]:
                     lex_alexina_2[lex_line[0]]["l"] = []
+                print(f"{lex_line[0]} locatif with aux {get_aux(feature_lex=feature_lex_line[4])}")
                 lex_alexina_2[lex_line[0]]["l"].append(get_aux(feature_lex=feature_lex_line[4]))
 
         print(f"{len(lex_alexina)} verbs found in alexina skipped {skipping} lines, {skipping_no_bracket} no brackets, "

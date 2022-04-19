@@ -8,15 +8,18 @@ language = 'fr'
 person_number = {'1;SG', '1;PL', '2;SG', '2;PL', '3;SG;MASC', '3;SG;FEM',  '3;PL;MASC', '3;PL;FEM'}#,  '3;PL;NEUT','3;SG;NEUT',}
 
 
-nom_prons = {'1;SG': 'je', '1;PL': 'nous', '2;SG': 'tu', '2;PL': 'vous', '3;SG;MASC': 'il', '3;SG;FEM': 'elle',  '3;PL;MASC':'ils', '3;PL;FEM': 'elles'}#,  '3;PL;NEUT':'ce', '3;SG;NEUT':'cela'}
+nom_prons = {'1;SG': 'je',#'1;SG;MASC': 'je', '1;SG;FEM': 'je',
+             '1;PL': 'nous', '2;SG': 'tu', '2;PL': 'vous', '3;SG;MASC': 'il', '3;SG;FEM': 'elle',  '3;PL;MASC':'ils', '3;PL;FEM': 'elles'}#,  '3;PL;NEUT':'ce', '3;SG;NEUT':'cela'}
 
-acc_prons = {'1;SG': 'me', '1;PL': 'nous', '2;SG': 'te', '2;PL': 'vous', '3;SG;MASC': 'le', '3;SG;FEM': 'la',  "3;PL;MASC": "les", "3;PL;FEM": "les"} # NB: "3;PL;MASC": "les" and "3;PL;FEM" could be normalized to "3;PL" (but then must handle acc_prons[pn] errors)
+acc_prons = {'1;SG;MASC': 'me', '1;SG;FEM': 'me', '1;PL': 'nous', '2;SG': 'te', '2;PL': 'vous', '3;SG;MASC': 'le', '3;SG;FEM': 'la',  "3;PL;MASC": "les", "3;PL;FEM": "les"} # NB: "3;PL;MASC": "les" and "3;PL;FEM" could be normalized to "3;PL" (but then must handle acc_prons[pn] errors)
 
-dat_prons = {'1;SG': 'me', '1;PL':'nous', '2;SG': 'te', '2;PL': 'vous', '3;SG;MASC': 'lui', '3;SG;FEM': 'lui', '3;PL': 'leur'}# '3;PL;MASC':'leur', '3;PL;FEM':'leur'}
+dat_prons = {'1;SG': 'me', '1;PL': 'nous', '2;SG': 'te', '2;PL': 'vous', '3;SG;MASC': 'lui', '3;SG;FEM': 'lui', '3;PL': 'leur'}# '3;PL;MASC':'leur', '3;PL;FEM':'leur'}
 
+loc_pron = {'3;SG;NEUT': 'y'}  # --> '3;PL;MASC':'leur', '3;PL;FEM':'leur'}
 
-prepos_prons = {'a': acc_prons,'d': dat_prons}
+gen_pron = {'3;SG;NEUT': 'en'}
 
+prepos_prons = {'a': acc_prons, 'd': dat_prons, 'l': loc_pron, "g": gen_pron}
 # reflexive_pronouns = {'1;SG': 'me', '1;PL':'nous', '2;SG': 'te', '2;PL': 'vous', '3;SG': 'se', '3;PL': 'se'}# https://francais.lingolia.com/en/grammar/pronouns/reflexive-pronouns#:~:text=The%20French%20reflexive%20pronouns%20are,English%20words%20myself%2C%20yourself%20etc.
 
 # OTHER ONES: https://pollylingu.al/fr/en/cases : DISJUNCTIF? GENITIF?
@@ -31,6 +34,10 @@ reflex_prons = {'1,SG': 'myself', '1,PL': 'ourselves', '2,SG': 'yourself', '2,PL
 
 prepos = {'a': '', 'd': 'à', 'c': 'avec', 'g': 'of', 'b': 'from', 'f': 'for', 'l': 'on', 's': 'at', 't': 'about', 'i': 'in'}
 
+
+
+
+
 moods = ['IND', 'IMP', "COND"]
 tenses = {'PST', 'PRS', 'FUT'}
 aspects = {#'SIMP', 'PROG',
@@ -42,15 +49,16 @@ be = {'v3': 'been', 'fut': 'will be',
       'PST,1,SG': 'was', 'PST,1,PL': 'were', 'PST,2': 'were', 'PST,3,SG': 'was', 'PST,3,PL': 'were',
       'PRS,1,SG': 'am', 'PRS,1,PL': 'are', 'PRS,2': 'are', 'PRS,3,SG': 'is', 'PRS,3,PL': 'are'}
 
+
+
 dicts = [nom_prons, acc_prons, reflex_prons, prepos, have, be]
 non_lemma_words = set().union(*[set(dicto.values()) for dicto in dicts])
 non_lemma_words |= {'will', "don't", 'do', 'be', 'would', 'not', 'did', "didn't", 'does', "doesn't", '?', "I'm", "you're",
-                    "we're", "they're", "he's", "she's","it's","haven't","hasn't","hadn't","wouldn't","won't","wasn't","weren't",
-                    "I've","you've","we've","they've","I'd","you'd","we'd","they'd","he'd","she'd","I'll","you'll","we'll",
-                    "they'll","he'll","she'll","it'll"}
+                    "we're", "they're", "he's", "she's", "it's", "haven't", "hasn't", "hadn't", "wouldn't", "won't", "wasn't", "weren't",
+                    "I've", "you've", "we've", "they've", "I'd", "you'd", "we'd", "they'd", "he'd","she'd", "I'll", "you'll", "we'll",
+                    "they'll", "he'll", "she'll", "it'll"}
 
-cases = {'a': 'ACC', 'd': 'DAT', #'c': 'COM',
-         #'g': 'GEN'
+cases = {'a': 'ACC', 'd': 'DAT', 'l': 'LOC', 'g': 'GEN'
          }#, 'b': 'ABL', 'f': 'BEN', 'l': 'ON', 's': 'AT', 't': 'CIRC', 'i': 'LOC'}
 
 rev_cases = {v: k for k, v in cases.items()}
@@ -74,56 +82,129 @@ auxiliary_dict = {"a": {
 
 VERBOSE = 0
 
+TRANSLATE_PRON_FEAT_TO_LEFF = {"1;SG;MASC": 'SG;MASC',
+                                "1;SG": 'SG;MASC',
+                               "1;SG;FEM": 'SG;FEM',
+
+
+                               "2;SG": 'SG;MASC',
+
+                               "3;SG;MASC": 'SG;MASC',
+                               "3;SG;FEM": 'SG;FEM',
+
+                               "1;PL": 'PL;MASC',
+                               "2;PL": 'PL;MASC',
+
+                               "3;PL;MASC": 'PL;MASC',
+                               "3;PL;FEM": 'PL;FEM',
+                               }
+
+
+def get_ptcp_pst(case, aux, table_unimorph, table_leff, pron_feat, pn):
+    ptcp_pst = table_unimorph["V.PTCP;PST"]
+    if aux == "e":
+        # we agree
+        # translate: _pron_feat
+        return table_leff[TRANSLATE_PRON_FEAT_TO_LEFF[pn]]
+
+    elif aux == "a":
+        if case == "a":
+            # we know that the COD will be before the verb --> the argument needs to agree with the accusatif prono,
+            try:
+                return table_leff[TRANSLATE_PRON_FEAT_TO_LEFF[pron_feat]]
+            except:
+                print(f"Warning: could not do the agreement for aux avoir , verb {ptcp_pst}")
+                breakpoint()
+                return ptcp_pst
+
+        else:
+            return ptcp_pst
+    else:
+        raise (Exception("aux not defined"))
 
 def append_declarative_sent(new_table, _pron_feat, seed_full_feature, form, subject, case, seed_full_form, pron=None, aux=None):
-    if case in ["a", "d"]:
+    if case in ["a", "d", "l", "g"]:
         assert pron is not None
         full_feature = seed_full_feature + f"{cases[case]}({_pron_feat})"
-
+    if aux is None:
+        pron = phonological_constrain_pronons(pron=pron, form=form, type=case)
+    else:
+        pron = phonological_constrain_pronons(pron=pron, form=aux, type=case)
     new_table[full_feature] = f"{seed_full_form}{subject} {pron}{aux+' ' if aux is not None else ''}{form}"
 
 
 def append_question(new_table, _pron_feat, seed_full_feature, form, subject, case, seed_full_form, pron=None, aux=None):
     full_feature = seed_full_feature + f"{cases[case]}({_pron_feat});Q"
-    if case in ["a", "d"]:
+    if case in ["a", "d", "l", "g"]:
         assert pron is not None
         if aux is None:
             # le dites?
-            full_form = f"{seed_full_form}{pron}{form} {subject}?"
+            pron = phonological_constrain_pronons(pron=pron, form=form, type=case)
+            full_form = f"{seed_full_form}{pron}{form}{get_question_phonological_link(before_subject=form, subject=subject, case=case)}{subject}?"
         else:
-            full_form = f"{seed_full_form}{pron}{aux} {subject} {form}?"
+            pron = phonological_constrain_pronons(pron=pron, form=aux, type=case)
+            full_form = f"{seed_full_form}{pron}{aux}{get_question_phonological_link(before_subject=aux, subject=subject, case=case)}{subject} {form}?"
 
     new_table[full_feature] = full_form
 
 
 def append_negation(new_table, _pron_feat, seed_full_feature, form, subject, case, seed_full_form, pron=None, aux=None):
-    if case in ["a", "d"]:
+    if case in ["a", "d", "l", "g"]:
         assert pron is not None
-        full_form = f"{seed_full_form}{subject} ne {pron}{aux + ' ' if aux is not None else ''}{form} pas"
+        if aux is None:
+            pron = phonological_constrain_pronons(pron=pron, form=form, type=case)
+            full_form = f"{seed_full_form}{subject} {get_ne(pron=pron,type=case)}{pron}{form} pas "
+        else:
+            pron = phonological_constrain_pronons(pron=pron, form=aux, type=case)
+            full_form = f"{seed_full_form}{subject} {get_ne(pron=pron, type=case)}{pron}{aux + ' ' if aux is not None else ''}pas {form}"
     full_feature = seed_full_feature + f"{cases[case]}({_pron_feat});NEG"
     new_table[full_feature] = full_form
 
 
 def append_question_and_negation(new_table, _pron_feat, seed_full_feature, form, subject, case, seed_full_form, pron=None, aux=None):
-    if case in ["a", "d"]:
+    if case in ["a", "d", "l", "g"]:
         assert pron is not None
         if aux is None:
-            full_form = f"{seed_full_form}ne {pron}{form} {subject} pas?"
+            pron = phonological_constrain_pronons(pron=pron, form=form, type=case)
+            full_form = f"{seed_full_form}{get_ne(pron=pron, type=case)}{pron}{form}{get_question_phonological_link(before_subject=form, subject=subject, case=case)}{subject} pas?"
         else:
-            full_form = f"{seed_full_form}ne {pron}{aux} {subject} pas {form}?"
+            pron = phonological_constrain_pronons(pron=pron, form=aux, type=case)
+            full_form = f"{seed_full_form}{get_ne(pron=pron, type=case)}{pron}{aux}{get_question_phonological_link(before_subject=aux, subject=subject, case=case)}{subject} pas {form}?"
     full_feature = seed_full_feature + f"{cases[case]}({_pron_feat});NEG;Q"
     new_table[full_feature] = full_form
 
 
-
-def append_4_types_of_questions(new_table, _pron_feat, seed_full_feature, form, subject, case, seed_full_form, pron=None, aux=None):
-    append_declarative_sent(new_table, _pron_feat, seed_full_feature, form, subject, case, seed_full_form, pron=pron, aux=aux)
+def append_4_types_of_sentences(new_table, _pron_feat, seed_full_feature, form, subject, case, seed_full_form, pron=None, aux=None):
+    append_declarative_sent(new_table, _pron_feat, seed_full_feature, form, subject, case, seed_full_form,
+                            pron=pron, aux=aux)
     append_question(new_table, _pron_feat, seed_full_feature, form, subject, case, seed_full_form,
-                                 pron=pron, aux=aux)
+                    pron=pron, aux=aux)
     append_negation(new_table, _pron_feat, seed_full_feature, form, subject, case, seed_full_form,
-                                 pron=pron, aux=aux)
+                     pron=pron, aux=aux)
     append_question_and_negation(new_table, _pron_feat, seed_full_feature, form, subject, case, seed_full_form,
                                  pron=pron, aux=aux)
+
+
+def get_question_phonological_link(before_subject, subject, case):
+    if case in ["a", "d", "l"]:
+        if re.match("^[aeiouy].*", subject) and re.match(".*[aeiouy]$", before_subject):
+            return "-t-"
+        else:
+            return "-"
+    else:
+        return " "
+
+
+def get_ne(pron, type):
+    if type == "l":
+        assert pron.strip() == "y", f"pron not 'y' but {pron}"
+        return "n'"
+    elif type == "g":
+        assert pron.strip() == "en", f"pron not 'en' but {pron}"
+        return "n'"
+    else:
+        return "ne "
+
 
 def phonological_constrain_pronons(form, pron, type="a"):
 
@@ -137,13 +218,15 @@ def phonological_constrain_pronons(form, pron, type="a"):
             return pron[:-1] + "'"
         else:
             return pron+" "
-    elif type == "0":
+    elif type == "0" or type in ["l", "g"]:
         if re.match("^[aeiouyhéê].*", form) and pron in ["je"]:
             return pron[:-1] + "'"
         else:
             return pron + " "
     else:
         raise(f"Type case not supported {type}")
+
+
 
 
 def imperatif_pronouns(pron, type="a"):
@@ -154,15 +237,18 @@ def imperatif_pronouns(pron, type="a"):
         elif pron == "me":
             return "moi"
         return pron
+    elif type in ["l", "g"]:
+        #assert pron == "y"
+        return pron
+    elif type == "d":
+        return pron
     else:
         raise(Exception(f"case {type} not supported "))
 
 
-def create_new_table(responses, table, aux_dic):
+def create_new_table(responses, table, aux_dic, ptcp_pst_table):
+
     nfin = table['V;NFIN']
-
-    ptcp_pst = table["V.PTCP;PST"]
-
     new_table = {}
 
     for mood in moods:
@@ -180,9 +266,8 @@ def create_new_table(responses, table, aux_dic):
 
                     try:
                         if mood == "IMP":
-
                             if pers not in ["2;SG", "1;PL", "2;PL"] or tense != "PRS":
-                                # Imperfect only for first and second person: only keeping present
+                                # IMPERATIF  only for first and second person: only keeping present
                                 continue
                             unimorph_match = f"V;POS;{mood};{pers}"
                             form = table[unimorph_match]
@@ -221,22 +306,22 @@ def create_new_table(responses, table, aux_dic):
                     for _response in responses:
 
                         aux = aux_dic[_response][0]
-                        if len(set(aux_dic[_response]))>1:
-                            print(f"Warning: Picking {aux} in {set(aux_dic[_response])} for {nfin} ")
+                        if len(set(aux_dic[_response])) > 1:
+                            print(f"Warning: Picking {aux} in {set(aux_dic[_response])} for {nfin} cas {_response}")
 
                         # cases
-                        if _response not in ["a", "d"]:
+                        if _response not in ["a", "d", "l", "g"]:
                             continue
                         # INTRANSITIF VERBS
                         if _response == "0":
-
+                            # TODO: do again: factorize as non 0 case
                             if mood == "IMP":
 
                                 full_form = seed_full_form + f"{form}"
                                 full_feature = f"{mood};{tense_feature};NOM({pn});"
                                 new_table[full_feature] = full_form
                                 if VERBOSE:
-                                    print(f"{nfin}\t{full_form}\t{full_feature}")
+                                    print(f"-- {nfin}\t{full_form}\t{full_feature}")
 
                             else:
                                 # SIMPLE
@@ -322,6 +407,12 @@ def create_new_table(responses, table, aux_dic):
 
                         for _pron_feat, _pron in prepos_prons[_response].items():
 
+                            # accordé ptcp_pst
+                            ptcp_pst = get_ptcp_pst(_response, aux, table, ptcp_pst_table, _pron_feat, pn)
+
+
+                            #ptcp_pst_table
+
                             seed_full_feature = f"{mood};{tense_feature};NOM({pn});"
                             seed_full_form = ""
 
@@ -331,26 +422,31 @@ def create_new_table(responses, table, aux_dic):
                                 continue
 
                             if mood == "IMP":
+
                                 if (pn == "1;PL" and _pron_feat == "2;SG") or (pn == "1;PL" and _pron_feat == "2;PL"):
                                     # TODO: fact check this
                                     continue
-                                _pron = imperatif_pronouns(_pron)
-                                full_form = seed_full_form + f"{form}-{_pron}"
+                                _pron_imperatif = imperatif_pronouns(_pron, type=_response)
+                                full_form = seed_full_form + f"{form}-{_pron_imperatif}"
                                 full_feature = seed_full_feature + f"{cases[_response]}({_pron_feat})"
+                                new_table[full_feature] = full_form+"!"
+                                full_feature = seed_full_feature + f"{cases[_response]}({_pron_feat});NEG"
+                                full_form = seed_full_form + f"{get_ne(_pron, type=_response)}{_pron} {form} pas!"
                                 new_table[full_feature] = full_form
+
                                 if VERBOSE:
                                     print(f"{nfin}\t{full_form}\t{full_feature}")
+
                             else:
 
-                                seed_full_form = ""#f"{nom_prons[pn]} "
-
+                                seed_full_form = ""
                                 # SIMPLE TENSES
-                                _pron_writing = phonological_constrain_pronons(pron=_pron, form=form, type=_response)
-                                #full_form = seed_full_form + f"{_pron_writing}{form} "
-                                append_4_types_of_questions(new_table, _pron_feat=_pron_feat, seed_full_feature=seed_full_feature, seed_full_form=seed_full_form,
-                                                            case=_response, subject=nom_prons[pn], form=form, pron=_pron_writing)
-                                #full_feature = seed_full_feature + f"{cases[_response]}({_pron_feat})"
-                                #new_table[full_feature] = full_form
+                                append_4_types_of_sentences(new_table, _pron_feat=_pron_feat,
+                                                            seed_full_feature=seed_full_feature,
+                                                            seed_full_form=seed_full_form,
+                                                            case=_response, subject=nom_prons[pn],
+                                                            form=form, pron=_pron)
+
                                 if VERBOSE:
                                     print(f"{nfin}\t{full_form}\t{full_feature}")
 
@@ -362,16 +458,14 @@ def create_new_table(responses, table, aux_dic):
                                         aux_form = auxiliary_dict[aux]["IND;FUT"][pers]
                                         seed_full_feature = f"IND;FUT;PFV;NOM({pn});"
                                         full_feature = seed_full_feature + f"{cases[_response]}({_pron_feat})"
-                                        _pron_writing_compound = phonological_constrain_pronons(pron=_pron,
-                                                                                                form=aux_form,
-                                                                                                type=_response)
-                                        append_4_types_of_questions(new_table, _pron_feat=_pron_feat,
+
+                                        append_4_types_of_sentences(new_table, _pron_feat=_pron_feat,
                                                                     seed_full_feature=seed_full_feature,
                                                                     seed_full_form=seed_full_form,
-                                                                    case=_response, subject=nom_prons[pn], form=form,
-                                                                    pron=_pron_writing)
-                                        #full_form = seed_full_form + f"{_pron_writing_compound}{aux_form} {ptcp_pst}"
-                                        #new_table[full_feature] = full_form
+                                                                    aux=aux_form,
+                                                                    case=_response, subject=nom_prons[pn], form=ptcp_pst,
+                                                                    pron=_pron)
+
                                         if VERBOSE:
                                             print(f"{nfin}\t{full_form}\t{full_feature}")
 
@@ -380,50 +474,42 @@ def create_new_table(responses, table, aux_dic):
                                         aux_form = auxiliary_dict[aux]["IND;PRS"][pers]
                                         seed_full_feature = f"IND;PST;NOM({pn});"
                                         full_feature = seed_full_feature + f"{cases[_response]}({_pron_feat})"
-                                        _pron_writing_compound = phonological_constrain_pronons(pron=_pron,
-                                                                                                form=aux_form,
-                                                                                                type=_response)
-                                        #full_form = seed_full_form + f"{_pron_writing_compound}{aux_form} {ptcp_pst}"
-                                        append_4_types_of_questions(new_table, _pron_feat=_pron_feat,
+
+                                        append_4_types_of_sentences(new_table, _pron_feat=_pron_feat,
                                                                     seed_full_feature=seed_full_feature,
                                                                     seed_full_form=seed_full_form,
-                                                                    case=_response, subject=nom_prons[pn], form=form,
-                                                                    pron=_pron_writing)
-                                        #new_table[full_feature] = full_form
+                                                                    aux=aux_form,
+                                                                    case=_response, subject=nom_prons[pn], form=ptcp_pst,
+                                                                    pron=_pron)
+
                                         if VERBOSE:
                                             print(f"{nfin}\t{full_form}\t{full_feature}")
 
                                         # past-perfect / plus que parfait --> imparfait
                                         aux_form = auxiliary_dict[aux]["IND;PST;IPFV"][pers]
                                         seed_full_feature = f"IND;PST;PFV;NOM({pn});"
-                                        #full_feature = seed_full_feature + f"{cases[_response]}({_pron_feat})"
-                                        _pron_writing_compound = phonological_constrain_pronons(pron=_pron,
-                                                                                                form=aux_form,
-                                                                                                type=_response)
-                                        #full_form = seed_full_form + f"{_pron_writing_compound}{aux_form} {ptcp_pst}"
-                                        append_4_types_of_questions(new_table, _pron_feat=_pron_feat,
+
+                                        append_4_types_of_sentences(new_table, _pron_feat=_pron_feat,
                                                                     seed_full_feature=seed_full_feature,
                                                                     seed_full_form=seed_full_form,
-                                                                    case=_response, subject=nom_prons[pn], form=form,
-                                                                    pron=_pron_writing)
-                                        #new_table[full_feature] = full_form
+                                                                    case=_response, subject=nom_prons[pn], form=ptcp_pst,
+                                                                    aux=aux_form,
+                                                                    pron=_pron)
+
                                         if VERBOSE:
                                             print(f"{nfin}\t{full_form}\t{full_feature}")
 
                                         # passé antérieur --> passé simple
                                         aux_form = auxiliary_dict[aux]["IND;PST;PFV;LGSPEC1"][pers]
                                         seed_full_feature = f"IND;PST;PFV;LGSPEC1;NOM({pn});"
-                                        #full_feature = seed_full_feature + f"{cases[_response]}({_pron_feat})"
-                                        _pron_writing_compound = phonological_constrain_pronons(pron=_pron,
-                                                                                                form=aux_form,
-                                                                                                type=_response)
-                                        #full_form = seed_full_form + f"{_pron_writing_compound}{aux_form} {ptcp_pst}"
-                                        append_4_types_of_questions(new_table, _pron_feat=_pron_feat,
+
+                                        append_4_types_of_sentences(new_table, _pron_feat=_pron_feat,
                                                                     seed_full_feature=seed_full_feature,
                                                                     seed_full_form=seed_full_form,
-                                                                    case=_response, subject=nom_prons[pn], form=form,
-                                                                    pron=_pron_writing)
-                                        #new_table[full_feature] = full_form
+                                                                    aux=aux_form,
+                                                                    case=_response, subject=nom_prons[pn], form=ptcp_pst,
+                                                                    pron=_pron)
+
                                         if VERBOSE:
                                             print(f"{nfin}\t{full_form}\t{full_feature}")
                                 elif mood == "COND":
@@ -431,24 +517,19 @@ def create_new_table(responses, table, aux_dic):
                                     if tense == "PST":
                                         aux_form = auxiliary_dict[aux]["COND;PST"][pers]
                                         seed_full_feature = f"COND;PFV;NOM({pn});"
-                                        #full_feature = seed_full_feature + f"{cases[_response]}({_pron_feat})"
-                                        _pron_writing_compound = phonological_constrain_pronons(pron=_pron,
-                                                                                                form=aux_form,
-                                                                                                type=_response)
-                                        #full_form = seed_full_form + f"{_pron_writing_compound}{aux_form} {ptcp_pst}"
-                                        append_4_types_of_questions(new_table, _pron_feat=_pron_feat,
+
+                                        append_4_types_of_sentences(new_table, _pron_feat=_pron_feat,
                                                                     seed_full_feature=seed_full_feature,
                                                                     seed_full_form=seed_full_form,
-                                                                    case=_response, subject=nom_prons[pn], form=form,
-                                                                    pron=_pron_writing)
-                                        #new_table[full_feature] = full_form
+                                                                    aux=aux_form,
+                                                                    case=_response, subject=nom_prons[pn], form=ptcp_pst,
+                                                                    pron=_pron)
+
                                         if VERBOSE:
                                             print(f"{nfin}\t{full_form}\t{full_feature}")
 
-                            #
-
     return new_table
-
+# in it: 'IMP;PRS;NOM(1;PL);LOC(3;SG;NEUT);NEG': "n'y allons pas!"
 
 def freq_sort(vocab_dir, language = "fr"):
     path = os.path.join(vocab_dir, language + '.txt')
@@ -525,25 +606,34 @@ if __name__ == '__main__':
     # get property
     lemmas_done = []
     new_table = {}
+    skipping = []
     for i, lemma in enumerate(lemmas_to_do):
-
+        if lemma in ["falloir", "valoir"]:
+            log = f"Skipping {lemma} because 'aux' matching pb in unimorph or empty leff table"
+            print(log)
+            skipping.append(log)
+            continue
         try:
-
             responses = features[lemma].keys()
             _pp = pp[lemma]
         except:
-            print(f"Missing lemma {lemma} so skipping it")
+
+            log= f"Missing lemma {lemma} in leff cases or leff auxilliary"
+            print(log)
+            skipping.append(log)
             continue
         if i > 600:
             break
         #if len(responses) == 0:
         #    responses.append("0")
-        _new_table = create_new_table(responses, table[lemma], aux_dic=features[lemma])
+        _new_table = create_new_table(responses, table[lemma], aux_dic=features[lemma], ptcp_pst_table=_pp)
         new_table[lemma] = _new_table
         lemmas_done.append(lemma)
         print(f"{i} {lemma} done")
     write_data(lemmas_done, new_table)
-    breakpoint()
+    print(f"Skipped {skipping} out of {len(lemmas_done)}")
+    print(lemmas_done)
+
 
     # PB with leff pluging:
 
@@ -552,6 +642,9 @@ if __name__ == '__main__':
     # - validate use of auxilliary and cases
         #- shouldn't I match auxilliary with case --> dire: dire___tell_oneself is not accusatif it is
         #- e.g. : initier, rapporter, référer, garer, planter, promener: both être et avoir for accusatif
+        #
+        # cacher	v-er:std	100;Lemma;v;<Suj:cln|sn,Obj:sinf|cla|seréc|sn|seréfl|scompl,Loc:(y|loc-sn)>;cat=v;%actif,%passif,%ppp_employé_comme_adj,%se_moyen	#<link resource="dicovalence" entry="13090"/><usage source="dicovalence">les jeunes se sont cachés de leurs parents</usage><link resource="dicovalence" entry="13040"/><usage source="dicovalence">les enfants ont caché les clefs de la voiture</usage><merging output="6" manual="1"/>
+        # cacher --> why is 'être' not indicated here!
 
     #TODO:
     # 0 --> cannot be the default one!
@@ -562,9 +655,26 @@ if __name__ == '__main__':
     # add avoir + être accord
     # combination ad, + combination with l and d: for checking + questions
     # # send to Benoît
-    # Add question/negations --> phonological constrains or maybe it is ok, - to handle 't'
 
-        # writing
+    # Q? Phono constrain: if two vowel follow - add "-t-" otherwise "-"
+    # - locatif match: is it correct: do I need more?
+    # HOW TO HANDLE VERB WITH SEVERAL AUXILLIARY ? : ex: here we would like je suis partis only ??
+    # - partir  v20     100;Lemma;v;<Suj:cln|sn,Dloc:(de-sn|en)>;cat=v;%actif   #<link resource="dicovalence" entry="59410"/><usage source="dicovalence">la tache de vin n'est pas partie de sa blouse</usage><merging output="4" manual="1"/>
+    # partir  v20     100;Lemma;v;<Suj:cln|sn,Dloc:(de-sn|en)>;cat=v;%actif   #<link resource="dicovalence" entry="59440"/><usage source="dicovalence">tout raisonnement doit partir de prémisses valables</usage><merging output="4" manual="1"/>
+    # partir  v20     100;Lemma;v;<Suj:cln|sn,Loc:(y|loc-sn),Dloc:(en|de-sn),Obl:(sinf)>;cat=v,@CtrlSujObl,@être;%actif       #<link resource="dicovalence" entry="59380"/><usage source="dicovalence">je suis parti de Bruxelles pour Paris en TGV</usage><merging output="4" manual="1"/>
+    # - trouver --> être trouvé ou avoir trouver
+    # - imperatif : datif ,
+    # - Is it correct? oller	colle-y!	IMP;PRS;NOM(2;SG);LOC(3;SG;NEUT) # coller	n'y colle pas!	IMP;PRS;NOM(2;SG);LOC(3;SG;NEUT);NEG # activer	active-y!	IMP;PRS;NOM(2;SG);LOC(3;SG;NEUT)
+    # - genitif: Prends-en-tu ? or En prends-tu ? (latter coded)
+    # How to handle : je/me tu/te nous/nous vous/vous feminine/masculine in compound tenses:
+    #   should I define je as both "1;SG;MASC and "1;SG;FEM" ? same for me
+
+
+    # TODO:
+
+    # - do avoir + être agrement
+    # --> send !
+
 
     # j'en ai pris, j'en ai trouvé
     # what order to go through it ?
@@ -572,3 +682,4 @@ if __name__ == '__main__':
 
 
 
+    # why missing: aller	ne nous allons pas!	IMP;PRS;NOM(1;PL);DAT(1;PL);NEG
