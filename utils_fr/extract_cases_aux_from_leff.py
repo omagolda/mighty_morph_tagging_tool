@@ -4,9 +4,9 @@
 - unzip in a lefff-3.4 folder
 - Run:
 
-python utils_fr/extract_cases_aux_from_leff.py
-    --leff_directory ./lefff-3.4/v_new.ilex
-    --output_json_directory leff_features.json
+python utils_fr/extract_cases_aux_from_leff.py \
+    --leff_directory ./lefff-3.4/v_new-fixed_duplicated.ilex \
+    --output_json_directory ./leff-extract/cases.json.json
 
 """
 
@@ -80,6 +80,7 @@ def extract_features_from_leff(lex_dir: Path, output_dir:str =None):
                 continue
 
             # verb
+
             lex_line[0] = lex_line[0].split("___")[0]
 
             if lex_line[0] not in lex_alexina:
@@ -90,6 +91,7 @@ def extract_features_from_leff(lex_dir: Path, output_dir:str =None):
 
             if "%actif" not in feature_lex_line[5]:
                 print(f"Skipping {lex_line[0]} because not %actif ")
+                # %actif_impersonnel
                 skipping += 1
                 skipping_not_actif += 1
                 continue
@@ -100,6 +102,7 @@ def extract_features_from_leff(lex_dir: Path, output_dir:str =None):
                 lex_alexina[lex_line[0]]["aux"].append("a")
             if "HAND_CHECKING" == lex_line[0]:
                 breakpoint()
+
 
             #if re.match("<.*Obj:\(?[^,>]*\|?cla\|?[^,>]*\)?.*>", feature_lex_line[3]) is not None:
             if match_accusatif(feature_lex_line[3]):
