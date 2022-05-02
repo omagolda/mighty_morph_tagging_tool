@@ -1069,43 +1069,6 @@ if __name__ == '__main__':
     print(lemmas_done)
 
 
-    # PB with leff pluging:
-
-    # - with falloir and valoir
-
-    # - validate use of auxilliary and cases
-        #- shouldn't I match auxilliary with case --> dire: dire___tell_oneself is not accusatif it is
-        #- e.g. : initier, rapporter, référer, garer, planter, promener: both être et avoir for accusatif
-        #
-        # cacher	v-er:std	100;Lemma;v;<Suj:cln|sn,Obj:sinf|cla|seréc|sn|seréfl|scompl,Loc:(y|loc-sn)>;cat=v;%actif,%passif,%ppp_employé_comme_adj,%se_moyen	#<link resource="dicovalence" entry="13090"/><usage source="dicovalence">les jeunes se sont cachés de leurs parents</usage><link resource="dicovalence" entry="13040"/><usage source="dicovalence">les enfants ont caché les clefs de la voiture</usage><merging output="6" manual="1"/>
-        # cacher --> why is 'être' not indicated here!
-
-    #TODO:
-
-    # Q? Phono constrain: if two vowel follow - add "-t-" otherwise "-"
-
-    # - trouver --> être trouvé ou avoir trouver
-    # - imperatif : datif ,
-    # - Is it correct? oller	colle-y!	IMP;PRS;NOM(2;SG);LOC(3;SG;NEUT) # coller	n'y colle pas!	IMP;PRS;NOM(2;SG);LOC(3;SG;NEUT);NEG # activer	active-y!	IMP;PRS;NOM(2;SG);LOC(3;SG;NEUT)
-    # - genitif: Prends-en-tu ? or En prends-tu ? (latter coded)
-
-    # How to handle : je/me tu/te nous/nous vous/vous feminine/masculine in compound tenses:
-    #   should I define je as both "1;SG;MASC and "1;SG;FEM" ? same for me
-
-    # REALOAD new lex and see if errors are gone
-    # Reflexif:
-    # - associé to 'être
-    # - se ou s' -->
-    # Add combinations
-    # add punct
-    # Combinaison: ad, al, af, ---> 1: match
-
-    # --> send !
-
-    # j'en ai pris, j'en ai trouvé
-    # what order to go through it ?
 
 
-
-
-    # why missing: aller	ne nous allons pas!	IMP;PRS;NOM(1;PL);DAT(1;PL);NEG
+    
