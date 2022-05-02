@@ -11,7 +11,7 @@ person_number = {'1;SG', '1;PL', '2;SG', '2;PL', '3;SG;MASC', '3;SG;FEM',  '3;PL
 nom_prons = {'1;SG': 'je',#'1;SG;MASC': 'je', '1;SG;FEM': 'je',
              '1;PL': 'nous', '2;SG': 'tu', '2;PL': 'vous', '3;SG;MASC': 'il', '3;SG;FEM': 'elle',  '3;PL;MASC':'ils', '3;PL;FEM': 'elles'}#,  '3;PL;NEUT':'ce', '3;SG;NEUT':'cela'}
 
-acc_prons = {'1;SG;MASC': 'me', '1;SG;FEM': 'me', '1;PL': 'nous', '2;SG': 'te', '2;PL': 'vous', '3;SG;MASC': 'le', '3;SG;FEM': 'la',  "3;PL;MASC": "les", "3;PL;FEM": "les"} # NB: "3;PL;MASC": "les" and "3;PL;FEM" could be normalized to "3;PL" (but then must handle acc_prons[pn] errors)
+acc_prons = {'1;SG': 'me', '1;PL': 'nous', '2;SG': 'te', '2;PL': 'vous', '3;SG;MASC': 'le', '3;SG;FEM': 'la',  "3;PL": "les"}#, "3;PL": "les"} # NB: "3;PL;MASC": "les" and "3;PL;FEM" could be normalized to "3;PL" (but then must handle acc_prons[pn] errors)
 
 dat_prons = {'1;SG': 'me', '1;PL': 'nous', '2;SG': 'te', '2;PL': 'vous', '3;SG;MASC': 'lui', '3;SG;FEM': 'lui', '3;PL': 'leur'}# '3;PL;MASC':'leur', '3;PL;FEM':'leur'}
 
@@ -22,12 +22,9 @@ loc_pron = {'3;SG;NEUT': 'y'}  # --> '3;PL;MASC':'leur', '3;PL;FEM':'leur'}
 gen_pron = {'3;SG;NEUT': 'en'}
 
 prepos_prons = {'a': acc_prons, 'd': dat_prons, 'l': loc_pron, "g": gen_pron, "r": reflex_prons}
-# reflexive_pronouns = {'1;SG': 'me', '1;PL':'nous', '2;SG': 'te', '2;PL': 'vous', '3;SG': 'se', '3;PL': 'se'}# https://francais.lingolia.com/en/grammar/pronouns/reflexive-pronouns#:~:text=The%20French%20reflexive%20pronouns%20are,English%20words%20myself%2C%20yourself%20etc.
 
 # OTHER ONES: https://pollylingu.al/fr/en/cases : DISJUNCTIF? GENITIF?
 
-# Complément du nom??
-#gen_prons = {'1;SG': 'meiner', '1;PL': 'unser', '2;SG': 'deiner', '2;PL': 'euer', '3;SG;MASC': 'seiner', '3;SG;FEM': 'ihrer', '3;SG;NEUT': 'seiner', '3;PL': 'ihrer', '2;FRML': 'Ihrer '}
 
 # tonique https://parlez-vous-french.com/les-pronoms-toniques-en-francais/
 tonique_pronouns = {'1;SG': 'moi', '1;PL':'nous', '2;SG': 'toi', '2;PL': 'vous', '3;SG;MASC': 'lui',
@@ -56,7 +53,7 @@ non_lemma_words |= {'will', "don't", 'do', 'be', 'would', 'not', 'did', "didn't"
                     "they'll", "he'll", "she'll", "it'll"}
 
 cases = {'a': 'ACC', 'd': 'DAT', 'l': 'LOC', 'g': 'GEN', "r": "RFLX"
-         }#, 'b': 'ABL', 'f': 'BEN', 'l': 'ON', 's': 'AT', 't': 'CIRC', 'i': 'LOC'}
+         }
 
 rev_cases = {v: k for k, v in cases.items()}
 
@@ -92,8 +89,28 @@ TRANSLATE_PRON_FEAT_TO_LEFF = {"1;SG;MASC": 'SG;MASC',
                                "1;PL": 'PL;MASC',
                                "2;PL": 'PL;MASC',
 
+                               "3;PL": 'PL;MASC',
+
                                "3;PL;MASC": 'PL;MASC',
                                "3;PL;FEM": 'PL;FEM',
+                               }
+
+
+GET_LEFF_PP = {
+                                "1;SG": ['SG;MASC', 'SG;FEM'],
+                                "2;SG": ['SG;MASC', 'SG;FEM'],
+
+                                "3;SG;MASC": ['SG;MASC'],
+                                "3;SG;FEM": ['SG;FEM'],
+                                "3;SG": ['SG;MASC', 'SG;FEM'],  # 'se' ?
+                                "3;SG;NEUT": ['SG;MASC'],   #"en"
+                                "1;PL": ['PL;MASC', 'PL;FEM'],
+                                "2;PL": ['PL;MASC', 'PL;FEM'],
+
+                                "3;PL": ['PL;MASC', 'PL;FEM'],
+                                "3;PL;MASC": ['PL;MASC'],
+                                "3;PL;FEM": ['PL;FEM'],
+
                                }
 
 
@@ -121,6 +138,51 @@ def get_ptcp_pst(case, aux, table_unimorph, table_leff, pron_feat, pn):
         raise (Exception("aux not defined"))
 
 
+def get_ptcp_pst_pn_expansion(case, aux, table_unimorph, table_leff, pron_argument_feat, pron_subject_feat):
+    ptcp_pst = table_unimorph["V.PTCP;PST"]
+    if aux == "e":
+        # we agree the past participle with the 'pronom personel'
+        # translate: _pron_feat
+        return (
+            # participe passé
+                [table_leff[aggrement] for aggrement in GET_LEFF_PP[pron_subject_feat]],
+            # pronoun subject list
+                #[nom_prons[pron_subject_feat] for _ in GET_LEFF_PP[pron_subject_feat]],
+            # pronoun list features SUBJET
+                [f'{pron_subject_feat[0]};{feature}' for feature in GET_LEFF_PP[pron_subject_feat]],
+            # pronoun list ARGUMENT
+                #None if pron_argument_feat is None else [f'{pron_argument_feat[0]}:{feature}' for feature in GET_LEFF_PP[pron_argument_feat]],
+            # pronoun list features ARGUMENT
+                #BUG: ? None if pron_argument_feat is None else [f'{pron_argument_feat[0]};{feature}' for feature in GET_LEFF_PP[pron_argument_feat]] --> the argument is not expanded cause do not impact the pp
+                None if pron_argument_feat is None else [f'{pron_argument_feat}' for _ in GET_LEFF_PP[pron_subject_feat]]
+                #[f'{pron_argument_feat[0]}:{feature}' for feature in GET_LEFF_PP[pron_argument_feat]]
+                )
+
+    elif aux == "a":
+        if case[0] == "a":
+            # we agree the past participle with the 'pronom complément'
+            # we know that the COD will be before the verb --> the argument needs to agree with the accusatif prono,
+            try:
+                #breakpoint()
+                #table['V;NFIN']
+                return (
+                    [table_leff[aggrement] for aggrement in GET_LEFF_PP[pron_argument_feat]],
+                    #BUG?[f'{pron_subject_feat[0]};{feature}' for feature in GET_LEFF_PP[pron_subject_feat]],
+                    [pron_subject_feat for _ in  GET_LEFF_PP[pron_argument_feat]], # subject feat is not expanded cause the agreement will be with the argument
+                    None if pron_argument_feat is None else [f'{pron_argument_feat[0]};{feature}' for feature in GET_LEFF_PP[pron_argument_feat]]
+                )
+            except:
+                print(f"Warning: could not do the agreement for aux avoir , verb {ptcp_pst}")
+                breakpoint()
+                return ([ptcp_pst], [pron_subject_feat], [pron_argument_feat])
+
+        else:
+
+            return ([ptcp_pst], [pron_subject_feat], [pron_argument_feat])
+    else:
+        raise (Exception("aux not defined"))
+
+
 def append_declarative_sent(new_table, seed_full_feature, form, subject, case, seed_full_form,_pron_feat=None, pron=None, aux=None):
     # features
     if case in ["a", "d", "l", "g", "r"]:
@@ -137,7 +199,8 @@ def append_declarative_sent(new_table, seed_full_feature, form, subject, case, s
         pron, subject = phonological_constrain_pronons(pron=pron, form=form, type=case, subject=subject)
     else:
         pron, subject = phonological_constrain_pronons(pron=pron, form=aux, type=case, subject=subject)
-
+    if pron.strip() in ["en", "y"] and subject.strip() == "je":
+        subject = "j'"
     new_table[full_feature] = f"{seed_full_form}{subject}{pron}{aux+' ' if aux is not None else ''}{form}."
 
 
@@ -157,10 +220,10 @@ def append_question(new_table, _pron_feat, seed_full_feature, form, subject, cas
     if aux is None:
         # le dites?
         pron, subject = phonological_constrain_pronons(pron=pron, form=form, type=case, subject=subject)
-        full_form = f"{seed_full_form}{pron}{form}{get_question_phonological_link(before_subject=form, subject=subject, case=case)}{subject}?"
+        full_form = f"{seed_full_form}{pron}{form}{get_question_phonological_link(before_subject=form, subject=subject, case=case)}{subject} ?"
     else:
         pron, subject = phonological_constrain_pronons(pron=pron, form=aux, type=case, subject=subject)
-        full_form = f"{seed_full_form}{pron}{aux}{get_question_phonological_link(before_subject=aux, subject=subject, case=case)}{subject} {form}?"
+        full_form = f"{seed_full_form}{pron}{aux}{get_question_phonological_link(before_subject=aux, subject=subject, case=case)}{subject} {form} ?"
 
     new_table[full_feature] = full_form
 
@@ -201,10 +264,10 @@ def append_question_and_negation(new_table, _pron_feat, seed_full_feature, form,
     # form
     if aux is None:
         pron, subject = phonological_constrain_pronons(pron=pron, form=form, type=case, subject=subject)
-        full_form = f"{seed_full_form}{get_ne(pron=pron, type=case, form=form)}{pron}{form}{get_question_phonological_link(before_subject=form, subject=subject, case=case)}{subject}pas?"
+        full_form = f"{seed_full_form}{get_ne(pron=pron, type=case, form=form)}{pron}{form}{get_question_phonological_link(before_subject=form, subject=subject, case=case)}{subject}pas ?"
     else:
         pron, subject = phonological_constrain_pronons(pron=pron, form=aux, type=case, subject=subject)
-        full_form = f"{seed_full_form}{get_ne(pron=pron, type=case, form=aux)}{pron}{aux}{get_question_phonological_link(before_subject=aux, subject=subject, case=case)}{subject}pas {form}?"
+        full_form = f"{seed_full_form}{get_ne(pron=pron, type=case, form=aux)}{pron}{aux}{get_question_phonological_link(before_subject=aux, subject=subject, case=case)}{subject}pas {form} ?"
     new_table[full_feature] = full_form
 
 
@@ -259,9 +322,9 @@ def append_question_sent_bi_pron(new_table, seed_full_feature, form, subject, ca
                                                                      _pron_feat_1=_pron_feat_1,
                                                                      form=aux if aux is not None else form, type=case, subject=subject)
     if aux is None:
-        new_table[full_feature] = f"{seed_full_form}{pronon_pairs}{form}{get_question_phonological_link(before_subject=form, subject=subject, case=case)}{subject}{tonique_1}?"
+        new_table[full_feature] = f"{seed_full_form}{pronon_pairs}{form}{get_question_phonological_link(before_subject=form, subject=subject, case=case)}{subject}{tonique_1} ?"
     else:
-        new_table[full_feature] = f"{seed_full_form}{pronon_pairs}{aux}{get_question_phonological_link(before_subject=aux, subject=subject, case=case)}{subject} {form}{tonique_1}?"
+        new_table[full_feature] = f"{seed_full_form}{pronon_pairs}{aux}{get_question_phonological_link(before_subject=aux, subject=subject, case=case)}{subject} {form}{tonique_1} ?"
 
 
 def append_neg_sent_bi_pron(new_table, seed_full_feature, form, subject, case, seed_full_form, _pron_feat_0=None,
@@ -298,9 +361,9 @@ def append_question_negation_sent_bi_pron(new_table, seed_full_feature, form, su
                                                                   type=case, subject=subject)
 
     if aux is None:
-        new_table[full_feature] = f"{seed_full_form}{get_ne(pron=_pron_feat_0,type=case, form=form)}{pronon_pairs}{form}{get_question_phonological_link(before_subject=form, subject=subject, case=case)}{subject} pas{tonique_1}?"
+        new_table[full_feature] = f"{seed_full_form}{get_ne(pron=_pron_feat_0,type=case, form=form)}{pronon_pairs}{form}{get_question_phonological_link(before_subject=form, subject=subject, case=case)}{subject} pas{tonique_1} ?"
     else:
-        new_table[full_feature] = f"{seed_full_form}{get_ne(pron=_pron_feat_0,type=case, form=form)}{pronon_pairs}{aux}{get_question_phonological_link( before_subject=aux, subject=subject, case=case)}{subject} pas {form}{tonique_1}?"
+        new_table[full_feature] = f"{seed_full_form}{get_ne(pron=_pron_feat_0,type=case, form=form)}{pronon_pairs}{aux}{get_question_phonological_link( before_subject=aux, subject=subject, case=case)}{subject} pas {form}{tonique_1} ?"
 
 
 def append_4_types_of_sentences_two_pron(new_table, seed_full_feature, form, subject, case, seed_full_form,
@@ -351,18 +414,23 @@ def phonological_constrain_pronons(form, pron=None, subject=None, type="a"):
         assert subject is not None
 
     if type == "a" or type == "r":
-        if re.match("^[aeiouyhéêh].*", form) and re.match(".*[aeiou]$", pron):
+        if re.match("^[aeiouyhéêh].*", form) and re.match('.*[aeiou]$', pron):
             return pron[:-1]+"'", subject+" "
         else:
             return pron+" ", subject+" "
     elif type == "d":
-        if re.match("^[aeiouyhéêh].*", form) and re.match(".*[aeiou]$", pron) and pron not in ["lui"]:
+        if re.match('^[aeiouyhéêh].*', form) and re.match('.*[aeiou]$', pron) and pron not in ["lui"]:
             return pron[:-1] + "'", subject+" "
         else:
             return pron+" ", subject+" "
     elif type in ["l", "g"]:
+        if type == "g":
+            if subject == "je":
+                pass#breakpoint()
         if re.match("^[aeiouyhéêh].*", form) and pron in ["je"]:
             return pron[:-1] + "'", subject+" "
+        #elif re.match("^[aeiouyhéêh].*", form) and subject in ["je"]:
+        #    return pron + " ", subject[:-1] + "'"
         else:
             return pron + " ", subject+" "
     elif type == "0":
@@ -372,7 +440,6 @@ def phonological_constrain_pronons(form, pron=None, subject=None, type="a"):
             return "", subject[:-1] + "'"
         else:
             return "", subject+" "
-
     else:
         raise(f"Type case not supported {type}")
 
@@ -542,100 +609,103 @@ def create_new_table(responses, table, aux_dic, ptcp_pst_table):
 
                             # INTRANSITIF VERBS
                             if _response == "0":
-                                ptcp_pst = get_ptcp_pst(_response, aux, table, ptcp_pst_table, None, pn)
-                                # TODO: do again: factorize as non 0 case
-                                if mood == "IMP":
-                                    full_form = seed_full_form + f"{form}!"
-                                    full_feature = f"{mood};{tense_feature};NOM({pn});"
-                                    new_table[full_feature] = full_form+"!"
+                                #ptcp_pst = get_ptcp_pst(_response, aux, table, ptcp_pst_table, None, pn)
+                                ptcp_pst_ls, pn_ls, _ = get_ptcp_pst_pn_expansion(_response, aux, table, ptcp_pst_table, None, pn)
+                                #breakpoint()
+                                for pn_feat_subject, ptcp_pst in zip(pn_ls, ptcp_pst_ls):
+                                    # TODO: do again: factorize as non 0 case
+                                    if mood == "IMP":
+                                        full_form = seed_full_form + f"{form} !"
+                                        full_feature = f"{mood};{tense_feature};NOM({pn_feat_subject});"
+                                        new_table[full_feature] = full_form
 
-                                    full_form = seed_full_form + f"ne {form} pas!"
-                                    full_feature = f"{mood};{tense_feature};NOM({pn});NEG"
-                                    new_table[full_feature] = full_form+"!"
-                                    if VERBOSE:
-                                        print(f"-- {nfin}\t{full_form}\t{full_feature}")
+                                        full_form = seed_full_form + f"{get_ne(None, _response, form)}{form} pas !"
+                                        full_feature = f"{mood};{tense_feature};NOM({pn_feat_subject});NEG"
+                                        new_table[full_feature] = full_form
+                                        if VERBOSE:
+                                            print(f"-- {nfin}\t{full_form}\t{full_feature}")
 
-                                else:
-                                    # SIMPLE
+                                    else:
+                                        # SIMPLE
 
-                                    seed_full_form = ""
-                                    full_feature = f"{AUX}{mood};{tense_feature};NOM({pn});"
+                                        seed_full_form = ""
+                                        full_feature = f"{AUX}{mood};{tense_feature};NOM({pn_feat_subject});"
 
-                                    append_4_types_of_sentences(new_table, _pron_feat=None,
-                                                                seed_full_feature=full_feature,
-                                                                seed_full_form=seed_full_form,
-                                                                case=_response, subject=nom_prons[pn],
-                                                                form=form, pron=None, aux=None)
+                                        append_4_types_of_sentences(new_table, _pron_feat=None,
+                                                                    seed_full_feature=full_feature,
+                                                                    seed_full_form=seed_full_form,
+                                                                    case=_response, subject=nom_prons[pn],
+                                                                    form=form, pron=None, aux=None)
 
-                                    if VERBOSE:
-                                        print(f"{nfin}\t{full_form}\t{full_feature}")
+                                        if VERBOSE:
+                                            print(f"{nfin}\t{full_form}\t{full_feature}")
 
-                                    # COMPOUND
-                                    if mood == "IND":
-                                        if tense == "FUT":
-                                            # get FUT --> get future
-                                            aux_form = auxiliary_dict[aux]["IND;FUT"][pers]
-                                            seed_full_feature = f"{AUX}IND;FUT;PFV;NOM({pn});"
+                                        # COMPOUND
+                                        if mood == "IND":
+                                            if tense == "FUT":
+                                                # get FUT --> get future
+                                                aux_form = auxiliary_dict[aux]["IND;FUT"][pers]
+                                                seed_full_feature = f"{AUX}IND;FUT;PFV;NOM({pn_feat_subject});"
 
-                                            append_4_types_of_sentences(new_table, _pron_feat=None,
-                                                                        seed_full_feature=seed_full_feature,
-                                                                        seed_full_form=seed_full_form,
-                                                                        case=_response, subject=nom_prons[pn],
-                                                                        form=ptcp_pst, pron=None, aux=aux_form)
-                                            if VERBOSE:
-                                                print(f"{nfin}\t{full_form}\t{full_feature}")
+                                                append_4_types_of_sentences(new_table, _pron_feat=None,
+                                                                            seed_full_feature=seed_full_feature,
+                                                                            seed_full_form=seed_full_form,
+                                                                            case=_response, subject=nom_prons[pn],
+                                                                            form=ptcp_pst, pron=None, aux=aux_form)
+                                                if VERBOSE:
+                                                    print(f"{nfin}\t{full_form}\t{full_feature}")
 
-                                        elif tense == "PST":
-                                            # present perfect / passé composé --> présent
-                                            aux_form = auxiliary_dict[aux]["IND;PRS"][pers]
-                                            seed_full_feature = f"{AUX}IND;PST;NOM({pn});"
-                                            append_4_types_of_sentences(new_table, _pron_feat=None,
-                                                                        seed_full_feature=seed_full_feature,
-                                                                        seed_full_form=seed_full_form,
-                                                                        case=_response, subject=nom_prons[pn],
-                                                                        form=ptcp_pst, pron=None, aux=aux_form)
-                                            if VERBOSE:
-                                                print(f"{nfin}\t{full_form}\t{full_feature}")
+                                            elif tense == "PST":
+                                                # present perfect / passé composé --> présent
+                                                aux_form = auxiliary_dict[aux]["IND;PRS"][pers]
+                                                seed_full_feature = f"{AUX}IND;PST;NOM({pn_feat_subject});"
+                                                append_4_types_of_sentences(new_table, _pron_feat=None,
+                                                                            seed_full_feature=seed_full_feature,
+                                                                            seed_full_form=seed_full_form,
+                                                                            case=_response, subject=nom_prons[pn],
+                                                                            form=ptcp_pst, pron=None, aux=aux_form)
+                                                if VERBOSE:
+                                                    print(f"{nfin}\t{full_form}\t{full_feature}")
 
-                                            # past-perfect / plus que parfait --> imparfait
-                                            aux_form = auxiliary_dict[aux]["IND;PST;IPFV"][pers]
-                                            seed_full_feature = f"{AUX}IND;PST;PFV;NOM({pn});"
-                                            append_4_types_of_sentences(new_table, _pron_feat=None,
-                                                                        seed_full_feature=seed_full_feature,
-                                                                        seed_full_form=seed_full_form,
-                                                                        case=_response, subject=nom_prons[pn],
-                                                                        form=ptcp_pst, pron=None, aux=aux_form)
-                                            if VERBOSE:
-                                                print(f"{nfin}\t{full_form}\t{full_feature}")
+                                                # past-perfect / plus que parfait --> imparfait
+                                                aux_form = auxiliary_dict[aux]["IND;PST;IPFV"][pers]
+                                                seed_full_feature = f"{AUX}IND;PST;PFV;NOM({pn_feat_subject});"
+                                                append_4_types_of_sentences(new_table, _pron_feat=None,
+                                                                            seed_full_feature=seed_full_feature,
+                                                                            seed_full_form=seed_full_form,
+                                                                            case=_response, subject=nom_prons[pn],
+                                                                            form=ptcp_pst, pron=None, aux=aux_form)
+                                                if VERBOSE:
+                                                    print(f"{nfin}\t{full_form}\t{full_feature}")
 
+                                                # passé antérieur --> passé simple
+                                                aux_form = auxiliary_dict[aux]["IND;PST;PFV;LGSPEC1"][pers]
+                                                seed_full_feature = f"{AUX}IND;PST;PFV;LGSPEC1;NOM({pn_feat_subject});"
+                                                append_4_types_of_sentences(new_table, _pron_feat=None,
+                                                                            seed_full_feature=seed_full_feature,
+                                                                            seed_full_form=seed_full_form,
+                                                                            case=_response, subject=nom_prons[pn],
+                                                                            form=ptcp_pst, pron=None, aux=aux_form)
+
+                                                if VERBOSE:
+                                                    print(f"{nfin}\t{full_form}\t{full_feature}")
+                                        elif mood == "COND":
                                             # passé antérieur --> passé simple
-                                            aux_form = auxiliary_dict[aux]["IND;PST;PFV;LGSPEC1"][pers]
-                                            seed_full_feature = f"{AUX}IND;PST;PFV;LGSPEC1;NOM({pn});"
-                                            append_4_types_of_sentences(new_table, _pron_feat=None,
-                                                                        seed_full_feature=seed_full_feature,
-                                                                        seed_full_form=seed_full_form,
-                                                                        case=_response, subject=nom_prons[pn],
-                                                                        form=ptcp_pst, pron=None, aux=aux_form)
-
-                                            if VERBOSE:
-                                                print(f"{nfin}\t{full_form}\t{full_feature}")
-                                    elif mood == "COND":
-                                        # passé antérieur --> passé simple
-                                        if tense == "PST":
-                                            aux_form = auxiliary_dict[aux]["COND;PST"][pers]
-                                            seed_full_feature = f"{AUX}COND;PFV;NOM({pn});"
-                                            #??full_feature = seed_full_feature #+ f"{cases[_response]}({_pron_feat})"
-                                            append_4_types_of_sentences(new_table, _pron_feat=None,
-                                                                        seed_full_feature=seed_full_feature,
-                                                                        seed_full_form=seed_full_form,
-                                                                        case=_response, subject=nom_prons[pn],
-                                                                        form=ptcp_pst, pron=None, aux=aux_form)
-                                            if VERBOSE:
-                                                print(f"{nfin}\t{full_form}\t{full_feature}")
+                                            if tense == "PST":
+                                                aux_form = auxiliary_dict[aux]["COND;PST"][pers]
+                                                seed_full_feature = f"{AUX}COND;PFV;NOM({pn_feat_subject});"
+                                                #??full_feature = seed_full_feature #+ f"{cases[_response]}({_pron_feat})"
+                                                append_4_types_of_sentences(new_table, _pron_feat=None,
+                                                                            seed_full_feature=seed_full_feature,
+                                                                            seed_full_form=seed_full_form,
+                                                                            case=_response, subject=nom_prons[pn],
+                                                                            form=ptcp_pst, pron=None, aux=aux_form)
+                                                if VERBOSE:
+                                                    print(f"{nfin}\t{full_form}\t{full_feature}")
 
                                 continue
 
-                            if len(_response) == 2:
+                            elif len(_response) == 2:
                                 for _pron_feat_0, _pron_0 in prepos_prons[_response[0]].items():
                                     for _pron_feat_1, _pron_1 in prepos_prons[_response[1]].items():
                                 
@@ -650,140 +720,143 @@ def create_new_table(responses, table, aux_dic, ptcp_pst_table):
                                             continue
 
                                         # accusatif would only be in position 0 so the agreement is done
-                                        ptcp_pst = get_ptcp_pst(_response, aux, table, ptcp_pst_table, _pron_feat_0, pn)
-    
-                                        seed_full_feature = f"{mood};{tense_feature};NOM({pn});"
-                                        seed_full_form = ""
-    
-                                        if (pn == "1;PL" and _pron_feat == "1;SG") or (pn == "2;PL" and _pron_feat == "2;SG") or (pn == "2;SG" and _pron_feat == "2;PL"):
-                                            # TODO: double check  (pn == "2;SG" and _pron_feat == "2;PL"): 'tu vous répondrais' not possible ?
-                                            continue
-
-                                        if (pn == "1;PL" and _pron_feat == "1;SG") or (pn == "2;PL" and _pron_feat == "2;SG") or (pn == "2;SG" and _pron_feat == "2;PL"):
-                                            # TODO: double check  (pn == "2;SG" and _pron_feat == "2;PL"): 'tu vous répondrais' not possible ?
-                                            continue
-    
-                                        if mood == "IMP":
-    
-                                            if (pn == "1;PL" and _pron_feat == "2;SG") or (
-                                                    pn == "1;PL" and _pron_feat == "2;PL"):
-                                                # TODO: fact check this
-                                                continue
-                                            _pron_imperatif_0 = _pron_0#imperatif_pronouns(_pron_0, type=_response[0])
-                                            _pron_imperatif_1 = imperatif_pronouns(_pron_1, type=_response[1])
-
-                                            full_form = seed_full_form + f"{form}-{get_order_pronon_imp_decl(_pron_imperatif_0, _pron_imperatif_1)}"
-                                            full_feature = seed_full_feature + f"{cases[_response[0]]}({_pron_feat_0});"+ f"{cases[_response[1]]}({_pron_feat_1})"
-                                            new_table[full_feature] = full_form + "!"
-                                            full_feature = seed_full_feature + f"{cases[_response[1]]}({_pron_feat_0});"+ f"{cases[_response[1]]}({_pron_feat_1});NEG"
-                                            full_form = seed_full_form + f"{get_ne(_pron, type=_response,form=form)}{get_order_pronon(_pron_0, _pron_1)} {form} pas!"
-                                            new_table[full_feature] = full_form
-    
-                                            if VERBOSE:
-                                                print(f"{nfin}\t{full_form}\t{full_feature}")
-    
-                                        else:
-    
+                                        #ptcp_pst = get_ptcp_pst(_response, aux, table, ptcp_pst_table, _pron_feat_0, pn)
+                                        ptcp_pst_ls, pn_ls, pn_feat_argument_0_ls = get_ptcp_pst_pn_expansion(_response, aux, table, ptcp_pst_table, _pron_feat_0, pn)
+                                        #if _response[0] == "a":
+                                        #    breakpoint()
+                                        for pn_feat_subject, pn_feat_arg_0, ptcp_pst in zip(pn_ls, pn_feat_argument_0_ls, ptcp_pst_ls):
+                                            seed_full_feature = f"{mood};{tense_feature};NOM({pn_feat_subject});"
                                             seed_full_form = ""
-                                            # SIMPLE TENSES
 
-                                            append_4_types_of_sentences_two_pron(new_table, seed_full_feature, form, nom_prons[pn],
-                                                                            _response, seed_full_form,
-                                                                            _pron_feat_0=_pron_feat_0, pron_0=_pron_0,
-                                                                            _pron_feat_1=_pron_feat_1, pron_1=_pron_1,
-                                                                            aux=None)
-    
-                                            if VERBOSE:
-                                                print(f"{nfin}\t{full_form}\t{full_feature}")
-    
-                                            # neg
+                                            if (pn == "1;PL" and _pron_feat_0 == "1;SG") or (pn == "2;PL" and _pron_feat_0 == "2;SG") or (pn == "2;SG" and _pron_feat_0 == "2;PL"):
+                                                # TODO: double check  (pn == "2;SG" and _pron_feat == "2;PL"): 'tu vous répondrais' not possible ?
+                                                continue
 
-                                                # COMPOUND TENSE
-                                            if mood == "IND":
-                                                if tense == "FUT":
-                                                    # get FUT --> get future
-                                                    aux_form = auxiliary_dict[aux]["IND;FUT"][pers]
-                                                    seed_full_feature = f"{AUX}IND;FUT;PFV;NOM({pn});"
+                                            #if (pn == "1;PL" and _pron_feat == "1;SG") or (pn == "2;PL" and _pron_feat == "2;SG") or (pn == "2;SG" and _pron_feat == "2;PL"):
+                                            #    # TODO: double check  (pn == "2;SG" and _pron_feat == "2;PL"): 'tu vous répondrais' not possible ?
+                                            #    continue
 
-                                                    append_4_types_of_sentences_two_pron(new_table, seed_full_feature,
-                                                                                    ptcp_pst, nom_prons[pn],
-                                                                                    _response, seed_full_form,
-                                                                                    _pron_feat_0=_pron_feat_0,
-                                                                                    pron_0=_pron_0,
-                                                                                    _pron_feat_1=_pron_feat_1,
-                                                                                    pron_1=_pron_1,
-                                                                                    aux=aux_form)
+                                            if mood == "IMP":
+
+                                                if (pn == "1;PL" and _pron_feat_0 == "2;SG") or (
+                                                        pn == "1;PL" and _pron_feat_0 == "2;PL"):
+                                                    # TODO: fact check this
+                                                    continue
+                                                _pron_imperatif_0 = _pron_0#imperatif_pronouns(_pron_0, type=_response[0])
+                                                _pron_imperatif_1 = imperatif_pronouns(_pron_1, type=_response[1])
+
+                                                full_form = seed_full_form + f"{form}-{get_order_pronon_imp_decl(_pron_imperatif_0, _pron_imperatif_1)} !"
+                                                full_feature = seed_full_feature + f"{cases[_response[0]]}({pn_feat_arg_0});"+ f"{cases[_response[1]]}({_pron_feat_1})"
+                                                new_table[full_feature] = full_form
+                                                full_feature = seed_full_feature + f"{cases[_response[1]]}({pn_feat_arg_0});"+ f"{cases[_response[1]]}({_pron_feat_1});NEG"
+                                                full_form = seed_full_form + f"{get_ne(_pron_0, type=_response,form=form)}{get_order_pronon(_pron_0, _pron_1)} {form} pas !"
+                                                new_table[full_feature] = full_form
+
+                                                if VERBOSE:
+                                                    print(f"{nfin}\t{full_form}\t{full_feature}")
+
+                                            else:
+
+                                                seed_full_form = ""
+                                                # SIMPLE TENSES
+
+                                                append_4_types_of_sentences_two_pron(new_table, seed_full_feature, form, nom_prons[pn],
+                                                                                _response, seed_full_form,
+                                                                                _pron_feat_0=pn_feat_arg_0, pron_0=_pron_0,
+                                                                                _pron_feat_1=_pron_feat_1, pron_1=_pron_1,
+                                                                                aux=None)
+
+                                                if VERBOSE:
+                                                    print(f"{nfin}\t{full_form}\t{full_feature}")
+
+                                                # neg
+
+                                                    # COMPOUND TENSE
+                                                if mood == "IND":
+                                                    if tense == "FUT":
+                                                        # get FUT --> get future
+                                                        aux_form = auxiliary_dict[aux]["IND;FUT"][pers]
+                                                        seed_full_feature = f"{AUX}IND;FUT;PFV;NOM({pn_feat_subject});"
+
+                                                        append_4_types_of_sentences_two_pron(new_table, seed_full_feature,
+                                                                                        ptcp_pst, nom_prons[pn],
+                                                                                        _response, seed_full_form,
+                                                                                        _pron_feat_0=pn_feat_arg_0,
+                                                                                        pron_0=_pron_0,
+                                                                                        _pron_feat_1=_pron_feat_1,
+                                                                                        pron_1=_pron_1,
+                                                                                        aux=aux_form)
 
 
-                                                    if VERBOSE:
-                                                        print(f"{nfin}\t{full_form}\t{full_feature}")
+                                                        if VERBOSE:
+                                                            print(f"{nfin}\t{full_form}\t{full_feature}")
 
-                                                elif tense == "PST":
-                                                    # present perfect / passé composé --> présent
-                                                    aux_form = auxiliary_dict[aux]["IND;PRS"][pers]
-                                                    seed_full_feature = f"{AUX}IND;PST;NOM({pn});"
+                                                    elif tense == "PST":
+                                                        # present perfect / passé composé --> présent
+                                                        aux_form = auxiliary_dict[aux]["IND;PRS"][pers]
+                                                        seed_full_feature = f"{AUX}IND;PST;NOM({pn_feat_subject});"
 
-                                                    append_4_types_of_sentences_two_pron(new_table, seed_full_feature,
-                                                                                    ptcp_pst, nom_prons[pn],
-                                                                                    _response, seed_full_form,
-                                                                                    _pron_feat_0=_pron_feat_0,
-                                                                                    pron_0=_pron_0,
-                                                                                    _pron_feat_1=_pron_feat_1,
-                                                                                    pron_1=_pron_1,
-                                                                                    aux=aux_form)
+                                                        append_4_types_of_sentences_two_pron(new_table, seed_full_feature,
+                                                                                        ptcp_pst, nom_prons[pn],
+                                                                                        _response, seed_full_form,
+                                                                                        _pron_feat_0=pn_feat_arg_0,
+                                                                                        pron_0=_pron_0,
+                                                                                        _pron_feat_1=_pron_feat_1,
+                                                                                        pron_1=_pron_1,
+                                                                                        aux=aux_form)
 
-                                                    if VERBOSE:
-                                                        print(f"{nfin}\t{full_form}\t{full_feature}")
+                                                        if VERBOSE:
+                                                            print(f"{nfin}\t{full_form}\t{full_feature}")
 
-                                                    # past-perfect / plus que parfait --> imparfait
-                                                    aux_form = auxiliary_dict[aux]["IND;PST;IPFV"][pers]
-                                                    seed_full_feature = f"{AUX}IND;PST;PFV;NOM({pn});"
+                                                        # past-perfect / plus que parfait --> imparfait
+                                                        aux_form = auxiliary_dict[aux]["IND;PST;IPFV"][pers]
+                                                        seed_full_feature = f"{AUX}IND;PST;PFV;NOM({pn_feat_subject});"
 
-                                                    append_4_types_of_sentences_two_pron(new_table, seed_full_feature,
-                                                                                    ptcp_pst, nom_prons[pn],
-                                                                                    _response, seed_full_form,
-                                                                                    _pron_feat_0=_pron_feat_0,
-                                                                                    pron_0=_pron_0,
-                                                                                    _pron_feat_1=_pron_feat_1,
-                                                                                    pron_1=_pron_1,
-                                                                                    aux=aux_form)
+                                                        append_4_types_of_sentences_two_pron(new_table, seed_full_feature,
+                                                                                        ptcp_pst, nom_prons[pn],
+                                                                                        _response, seed_full_form,
+                                                                                        _pron_feat_0=pn_feat_arg_0,
+                                                                                        pron_0=_pron_0,
+                                                                                        _pron_feat_1=_pron_feat_1,
+                                                                                        pron_1=_pron_1,
+                                                                                        aux=aux_form)
 
-                                                    if VERBOSE:
-                                                        print(f"{nfin}\t{full_form}\t{full_feature}")
+                                                        if VERBOSE:
+                                                            print(f"{nfin}\t{full_form}\t{full_feature}")
 
+                                                        # passé antérieur --> passé simple
+                                                        aux_form = auxiliary_dict[aux]["IND;PST;PFV;LGSPEC1"][pers]
+                                                        seed_full_feature = f"{AUX}IND;PST;PFV;LGSPEC1;NOM({pn_feat_subject});"
+
+                                                        append_4_types_of_sentences_two_pron(new_table, seed_full_feature,
+                                                                                        ptcp_pst, nom_prons[pn],
+                                                                                        _response, seed_full_form,
+                                                                                        _pron_feat_0=pn_feat_arg_0,
+                                                                                        pron_0=_pron_0,
+                                                                                        _pron_feat_1=_pron_feat_1,
+                                                                                        pron_1=_pron_1,
+                                                                                        aux=aux_form)
+
+                                                        if VERBOSE:
+                                                            print(f"{nfin}\t{full_form}\t{full_feature}")
+                                                elif mood == "COND":
                                                     # passé antérieur --> passé simple
-                                                    aux_form = auxiliary_dict[aux]["IND;PST;PFV;LGSPEC1"][pers]
-                                                    seed_full_feature = f"{AUX}IND;PST;PFV;LGSPEC1;NOM({pn});"
+                                                    if tense == "PST":
+                                                        aux_form = auxiliary_dict[aux]["COND;PST"][pers]
+                                                        seed_full_feature = f"{AUX}COND;PFV;NOM({pn_feat_subject});"
 
-                                                    append_4_types_of_sentences_two_pron(new_table, seed_full_feature,
-                                                                                    ptcp_pst, nom_prons[pn],
-                                                                                    _response, seed_full_form,
-                                                                                    _pron_feat_0=_pron_feat_0,
-                                                                                    pron_0=_pron_0,
-                                                                                    _pron_feat_1=_pron_feat_1,
-                                                                                    pron_1=_pron_1,
-                                                                                    aux=aux_form)
+                                                        append_4_types_of_sentences_two_pron(new_table, seed_full_feature,
+                                                                                        ptcp_pst, nom_prons[pn],
+                                                                                        _response, seed_full_form,
+                                                                                        _pron_feat_0=pn_feat_arg_0,
+                                                                                        pron_0=_pron_0,
+                                                                                        _pron_feat_1=_pron_feat_1,
+                                                                                        pron_1=_pron_1,
+                                                                                        aux=aux_form)
 
-                                                    if VERBOSE:
-                                                        print(f"{nfin}\t{full_form}\t{full_feature}")
-                                            elif mood == "COND":
-                                                # passé antérieur --> passé simple
-                                                if tense == "PST":
-                                                    aux_form = auxiliary_dict[aux]["COND;PST"][pers]
-                                                    seed_full_feature = f"{AUX}COND;PFV;NOM({pn});"
-
-                                                    append_4_types_of_sentences_two_pron(new_table, seed_full_feature,
-                                                                                    ptcp_pst, nom_prons[pn],
-                                                                                    _response, seed_full_form,
-                                                                                    _pron_feat_0=_pron_feat_0,
-                                                                                    pron_0=_pron_0,
-                                                                                    _pron_feat_1=_pron_feat_1,
-                                                                                    pron_1=_pron_1,
-                                                                                    aux=aux_form)
-
-                                                    if VERBOSE:
-                                                        print(f"{nfin}\t{full_form}\t{full_feature}")
-                            elif len(_response) == 1:
+                                                        if VERBOSE:
+                                                            print(f"{nfin}\t{full_form}\t{full_feature}")
+                            elif len(_response) == 1 and _response != "0":
                                 for _pron_feat, _pron in prepos_prons[_response].items():
     
                                     # accordé ptcp_pst
@@ -791,122 +864,131 @@ def create_new_table(responses, table, aux_dic, ptcp_pst_table):
                                         # in reflexive cases: only "je me..., tu te... "
                                         continue
     
-                                    ptcp_pst = get_ptcp_pst(_response, aux, table, ptcp_pst_table, _pron_feat, pn)
-    
-                                    seed_full_feature = f"{mood};{tense_feature};NOM({pn});"
-                                    seed_full_form = ""
-    
-                                    if (pn == "1;PL" and _pron_feat == "1;SG") or (pn == "2;PL" and _pron_feat == "2;SG") or (
-                                            pn == "2;SG" and _pron_feat == "2;PL"):
-                                        # TODO: double check  (pn == "2;SG" and _pron_feat == "2;PL"): 'tu vous répondrais' not possible ?
-                                        continue
-    
-                                    if mood == "IMP":
-    
-                                        if (pn == "1;PL" and _pron_feat == "2;SG") or (pn == "1;PL" and _pron_feat == "2;PL"):
-                                            # TODO: fact check this
-                                            continue
-                                        _pron_imperatif = imperatif_pronouns(_pron, type=_response)
-                                        full_form = seed_full_form + f"{form}-{_pron_imperatif}"
-                                        full_feature = seed_full_feature + f"{cases[_response]}({_pron_feat})"
-                                        new_table[full_feature] = full_form+"!"
-                                        full_feature = seed_full_feature + f"{cases[_response]}({_pron_feat});NEG"
-                                        full_form = seed_full_form + f"{get_ne(_pron, type=_response, form=form)}{_pron} {form} pas!"
-                                        new_table[full_feature] = full_form
-    
-                                        if VERBOSE:
-                                            print(f"{nfin}\t{full_form}\t{full_feature}")
-    
-                                    else:
-    
+                                    #ptcp_pst = get_ptcp_pst(_response, aux, table, ptcp_pst_table, _pron_feat, pn)
+                                    ptcp_pst_ls, pn_ls, pn_feat_argument_ls = get_ptcp_pst_pn_expansion(_response, aux, table, ptcp_pst_table, _pron_feat, pn)
+                                    try:
+                                        assert len(ptcp_pst_ls) == len(pn_ls) == len(pn_feat_argument_ls)
+                                    except:
+                                        breakpoint()
+
+                                    for pn_feat_subject, pn_feat_arg, ptcp_pst in zip(pn_ls, pn_feat_argument_ls , ptcp_pst_ls):
+                                        seed_full_feature = f"{mood};{tense_feature};NOM({pn_feat_subject});"
                                         seed_full_form = ""
-                                        # SIMPLE TENSES
-                                        append_4_types_of_sentences(new_table, _pron_feat=_pron_feat,
-                                                                    seed_full_feature=seed_full_feature,
-                                                                    seed_full_form=seed_full_form,
-                                                                    case=_response, subject=nom_prons[pn],
-                                                                    form=form, pron=_pron)
-    
-                                        if VERBOSE:
-                                            print(f"{nfin}\t{full_form}\t{full_feature}")
-    
-                                        # neg
-                                        # COMPOUND TENSE
-                                        if mood == "IND":
-                                            if tense == "FUT":
-                                                # get FUT --> get future
-                                                aux_form = auxiliary_dict[aux]["IND;FUT"][pers]
-                                                seed_full_feature = f"{AUX}IND;FUT;PFV;NOM({pn});"
-                                                #full_feature = seed_full_feature + f"{cases[_response]}({_pron_feat})"
-    
-                                                append_4_types_of_sentences(new_table, _pron_feat=_pron_feat,
-                                                                            seed_full_feature=seed_full_feature,
-                                                                            seed_full_form=seed_full_form,
-                                                                            aux=aux_form,
-                                                                            case=_response, subject=nom_prons[pn], form=ptcp_pst,
-                                                                            pron=_pron)
-    
-                                                if VERBOSE:
-                                                    print(f"{nfin}\t{full_form}\t{full_feature}")
-    
-                                            elif tense == "PST":
-                                                # present perfect / passé composé --> présent
-                                                aux_form = auxiliary_dict[aux]["IND;PRS"][pers]
-                                                seed_full_feature = f"{AUX}IND;PST;NOM({pn});"
-                                                #full_feature = seed_full_feature + f"{cases[_response]}({_pron_feat})"
-    
-                                                append_4_types_of_sentences(new_table, _pron_feat=_pron_feat,
-                                                                            seed_full_feature=seed_full_feature,
-                                                                            seed_full_form=seed_full_form,
-                                                                            aux=aux_form,
-                                                                            case=_response, subject=nom_prons[pn], form=ptcp_pst,
-                                                                            pron=_pron)
-    
-                                                if VERBOSE:
-                                                    print(f"{nfin}\t{full_form}\t{full_feature}")
-    
-                                                # past-perfect / plus que parfait --> imparfait
-                                                aux_form = auxiliary_dict[aux]["IND;PST;IPFV"][pers]
-                                                seed_full_feature = f"{AUX}IND;PST;PFV;NOM({pn});"
-    
-                                                append_4_types_of_sentences(new_table, _pron_feat=_pron_feat,
-                                                                            seed_full_feature=seed_full_feature,
-                                                                            seed_full_form=seed_full_form,
-                                                                            case=_response, subject=nom_prons[pn], form=ptcp_pst,
-                                                                            aux=aux_form,
-                                                                            pron=_pron)
-    
-                                                if VERBOSE:
-                                                    print(f"{nfin}\t{full_form}\t{full_feature}")
-    
+
+                                        if (pn == "1;PL" and _pron_feat == "1;SG") or (pn == "2;PL" and _pron_feat == "2;SG") or (
+                                                pn == "2;SG" and _pron_feat == "2;PL"):
+                                            # TODO: double check  (pn == "2;SG" and _pron_feat == "2;PL"): 'tu vous répondrais' not possible ?
+                                            continue
+
+                                        if mood == "IMP":
+
+                                            if (pn == "1;PL" and _pron_feat == "2;SG") or\
+                                                    (pn == "1;PL" and _pron_feat == "2;PL"):
+                                                # TODO: fact check this
+                                                continue
+                                            _pron_imperatif = imperatif_pronouns(_pron, type=_response)
+                                            full_form = seed_full_form + f"{form}-{_pron_imperatif} !"
+                                            full_feature = seed_full_feature + f"{cases[_response]}({pn_feat_arg})"
+                                            new_table[full_feature] = full_form
+                                            full_feature = seed_full_feature + f"{cases[_response]}({pn_feat_arg});NEG"
+
+                                            full_form = seed_full_form + f"{get_ne(_pron, type=_response,form=form)}{phonological_constrain_pronons(form=form,pron=_pron, subject='', type=_response)[0]}{form} pas !"
+                                            #full_form = seed_full_form + f"{get_ne(_pron, type=_response, form=form)}{_pron} {form} pas !"
+                                            new_table[full_feature] = full_form
+
+                                            if VERBOSE:
+                                                print(f"{nfin}\t{full_form}\t{full_feature}")
+
+                                        else:
+
+                                            seed_full_form = ""
+                                            # SIMPLE TENSES
+                                            append_4_types_of_sentences(new_table, _pron_feat=pn_feat_arg,
+                                                                        seed_full_feature=seed_full_feature,
+                                                                        seed_full_form=seed_full_form,
+                                                                        case=_response, subject=nom_prons[pn],
+                                                                        form=form, pron=_pron)
+
+                                            if VERBOSE:
+                                                print(f"{nfin}\t{full_form}\t{full_feature}")
+
+                                            # neg
+                                            # COMPOUND TENSE
+                                            if mood == "IND":
+                                                if tense == "FUT":
+                                                    # get FUT --> get future
+                                                    aux_form = auxiliary_dict[aux]["IND;FUT"][pers]
+                                                    seed_full_feature = f"{AUX}IND;FUT;PFV;NOM({pn_feat_subject});"
+                                                    #full_feature = seed_full_feature + f"{cases[_response]}({pn_feat_arg})"
+
+                                                    append_4_types_of_sentences(new_table, _pron_feat=pn_feat_arg,
+                                                                                seed_full_feature=seed_full_feature,
+                                                                                seed_full_form=seed_full_form,
+                                                                                aux=aux_form,
+                                                                                case=_response, subject=nom_prons[pn], form=ptcp_pst,
+                                                                                pron=_pron)
+
+                                                    if VERBOSE:
+                                                        print(f"{nfin}\t{full_form}\t{full_feature}")
+
+                                                elif tense == "PST":
+                                                    # present perfect / passé composé --> présent
+                                                    aux_form = auxiliary_dict[aux]["IND;PRS"][pers]
+                                                    seed_full_feature = f"{AUX}IND;PST;NOM({pn_feat_subject});"
+                                                    #full_feature = seed_full_feature + f"{cases[_response]}({_pron_feat})"
+
+                                                    append_4_types_of_sentences(new_table, _pron_feat=pn_feat_arg,
+                                                                                seed_full_feature=seed_full_feature,
+                                                                                seed_full_form=seed_full_form,
+                                                                                aux=aux_form,
+                                                                                case=_response, subject=nom_prons[pn], form=ptcp_pst,
+                                                                                pron=_pron)
+
+                                                    if VERBOSE:
+                                                        print(f"{nfin}\t{full_form}\t{full_feature}")
+
+                                                    # past-perfect / plus que parfait --> imparfait
+                                                    aux_form = auxiliary_dict[aux]["IND;PST;IPFV"][pers]
+                                                    seed_full_feature = f"{AUX}IND;PST;PFV;NOM({pn_feat_subject});"
+
+                                                    append_4_types_of_sentences(new_table, _pron_feat=pn_feat_arg,
+                                                                                seed_full_feature=seed_full_feature,
+                                                                                seed_full_form=seed_full_form,
+                                                                                case=_response, subject=nom_prons[pn], form=ptcp_pst,
+                                                                                aux=aux_form,
+                                                                                pron=_pron)
+
+                                                    if VERBOSE:
+                                                        print(f"{nfin}\t{full_form}\t{full_feature}")
+
+                                                    # passé antérieur --> passé simple
+                                                    aux_form = auxiliary_dict[aux]["IND;PST;PFV;LGSPEC1"][pers]
+                                                    seed_full_feature = f"{AUX}IND;PST;PFV;LGSPEC1;NOM({pn_feat_subject});"
+
+                                                    append_4_types_of_sentences(new_table, _pron_feat=pn_feat_arg,
+                                                                                seed_full_feature=seed_full_feature,
+                                                                                seed_full_form=seed_full_form,
+                                                                                aux=aux_form,
+                                                                                case=_response, subject=nom_prons[pn], form=ptcp_pst,
+                                                                                pron=_pron)
+
+                                                    if VERBOSE:
+                                                        print(f"{nfin}\t{full_form}\t{full_feature}")
+                                            elif mood == "COND":
                                                 # passé antérieur --> passé simple
-                                                aux_form = auxiliary_dict[aux]["IND;PST;PFV;LGSPEC1"][pers]
-                                                seed_full_feature = f"{AUX}IND;PST;PFV;LGSPEC1;NOM({pn});"
-    
-                                                append_4_types_of_sentences(new_table, _pron_feat=_pron_feat,
-                                                                            seed_full_feature=seed_full_feature,
-                                                                            seed_full_form=seed_full_form,
-                                                                            aux=aux_form,
-                                                                            case=_response, subject=nom_prons[pn], form=ptcp_pst,
-                                                                            pron=_pron)
-    
-                                                if VERBOSE:
-                                                    print(f"{nfin}\t{full_form}\t{full_feature}")
-                                        elif mood == "COND":
-                                            # passé antérieur --> passé simple
-                                            if tense == "PST":
-                                                aux_form = auxiliary_dict[aux]["COND;PST"][pers]
-                                                seed_full_feature = f"{AUX}COND;PFV;NOM({pn});"
-    
-                                                append_4_types_of_sentences(new_table, _pron_feat=_pron_feat,
-                                                                            seed_full_feature=seed_full_feature,
-                                                                            seed_full_form=seed_full_form,
-                                                                            aux=aux_form,
-                                                                            case=_response, subject=nom_prons[pn], form=ptcp_pst,
-                                                                            pron=_pron)
-    
-                                                if VERBOSE:
-                                                    print(f"{nfin}\t{full_form}\t{full_feature}")
+                                                if tense == "PST":
+                                                    aux_form = auxiliary_dict[aux]["COND;PST"][pers]
+                                                    seed_full_feature = f"{AUX}COND;PFV;NOM({pn_feat_subject});"
+
+                                                    append_4_types_of_sentences(new_table, _pron_feat=pn_feat_arg,
+                                                                                seed_full_feature=seed_full_feature,
+                                                                                seed_full_form=seed_full_form,
+                                                                                aux=aux_form,
+                                                                                case=_response, subject=nom_prons[pn], form=ptcp_pst,
+                                                                                pron=_pron)
+
+                                                    if VERBOSE:
+                                                        print(f"{nfin}\t{full_form}\t{full_feature}")
 
     return new_table
 # in it: 'IMP;PRS;NOM(1;PL);LOC(3;SG;NEUT);NEG': "n'y allons pas!"

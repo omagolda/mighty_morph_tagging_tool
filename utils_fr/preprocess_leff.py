@@ -1,4 +1,6 @@
-
+"""
+python utils_fr/preprocess_leff.py --leff_directory ./lefff-3.4/v_new-fixed.ilex --leff_output v_new-fixed_duplicated.ilex
+"""
 import argparse
 import json
 import re
@@ -39,6 +41,7 @@ def duplicate(lex_dir, output_lex_dir):
 
                     #breakpoint()
                 if "(se) Lemma" in feature_lex_line[1] or "(s')Lemma" in feature_lex_line[1]:
+                    # replacing '(se)' by 'se' --> this means that (se) lemma should be ignored
                     print("se lemma fixed")
                     print(lex_line)
                     feature_lex_line[1] = feature_lex_line[1].replace(")", "")
