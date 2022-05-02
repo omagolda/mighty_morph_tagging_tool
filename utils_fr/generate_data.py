@@ -114,29 +114,6 @@ GET_LEFF_PP = {
                                }
 
 
-def get_ptcp_pst(case, aux, table_unimorph, table_leff, pron_feat, pn):
-    ptcp_pst = table_unimorph["V.PTCP;PST"]
-    if aux == "e":
-        # we agree the past participle with the 'pronom personel'
-        # translate: _pron_feat
-        return table_leff[TRANSLATE_PRON_FEAT_TO_LEFF[pn]]
-
-    elif aux == "a":
-        if case == "a":
-            # we agree the past participle with the 'pronom complément'
-            # we know that the COD will be before the verb --> the argument needs to agree with the accusatif prono,
-            try:
-                return table_leff[TRANSLATE_PRON_FEAT_TO_LEFF[pron_feat]]
-            except:
-                print(f"Warning: could not do the agreement for aux avoir , verb {ptcp_pst}")
-                breakpoint()
-                return ptcp_pst
-
-        else:
-            return ptcp_pst
-    else:
-        raise (Exception("aux not defined"))
-
 
 def get_ptcp_pst_pn_expansion(case, aux, table_unimorph, table_leff, pron_argument_feat, pron_subject_feat):
     ptcp_pst = table_unimorph["V.PTCP;PST"]
@@ -609,7 +586,6 @@ def create_new_table(responses, table, aux_dic, ptcp_pst_table):
 
                             # INTRANSITIF VERBS
                             if _response == "0":
-                                #ptcp_pst = get_ptcp_pst(_response, aux, table, ptcp_pst_table, None, pn)
                                 ptcp_pst_ls, pn_ls, _ = get_ptcp_pst_pn_expansion(_response, aux, table, ptcp_pst_table, None, pn)
                                 #breakpoint()
                                 for pn_feat_subject, ptcp_pst in zip(pn_ls, ptcp_pst_ls):
@@ -720,7 +696,6 @@ def create_new_table(responses, table, aux_dic, ptcp_pst_table):
                                             continue
 
                                         # accusatif would only be in position 0 so the agreement is done
-                                        #ptcp_pst = get_ptcp_pst(_response, aux, table, ptcp_pst_table, _pron_feat_0, pn)
                                         ptcp_pst_ls, pn_ls, pn_feat_argument_0_ls = get_ptcp_pst_pn_expansion(_response, aux, table, ptcp_pst_table, _pron_feat_0, pn)
                                         #if _response[0] == "a":
                                         #    breakpoint()
@@ -864,12 +839,8 @@ def create_new_table(responses, table, aux_dic, ptcp_pst_table):
                                         # in reflexive cases: only "je me..., tu te... "
                                         continue
     
-                                    #ptcp_pst = get_ptcp_pst(_response, aux, table, ptcp_pst_table, _pron_feat, pn)
                                     ptcp_pst_ls, pn_ls, pn_feat_argument_ls = get_ptcp_pst_pn_expansion(_response, aux, table, ptcp_pst_table, _pron_feat, pn)
-                                    try:
-                                        assert len(ptcp_pst_ls) == len(pn_ls) == len(pn_feat_argument_ls)
-                                    except:
-                                        breakpoint()
+
 
                                     for pn_feat_subject, pn_feat_arg, ptcp_pst in zip(pn_ls, pn_feat_argument_ls , ptcp_pst_ls):
                                         seed_full_feature = f"{mood};{tense_feature};NOM({pn_feat_subject});"
