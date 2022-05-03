@@ -549,9 +549,18 @@ def create_new_table(responses, table, aux_dic, ptcp_pst_table):
 
                         else:
                             form = table[unimorph_match]
-                    except:
-                        print(f"{unimorph_match} not found in unimoprh {table}")
+
+                        # sabity check Participe passé
+                    except Exception as e:
+                        print(f"Warning: form {nfin} : {unimorph_match} not found in unimorph so skipping it {e}")
                         continue
+
+                    try:
+                        table["V.PTCP;PST"]
+                    except Exception as e:
+                        print(f"Warning: form {nfin} : 'V.PTCP;PST' not found in unimorph so skipping it {e}")
+                        continue
+
 
                         # print(f"form {form} working for {unimorph_match}")
 
@@ -702,9 +711,9 @@ def create_new_table(responses, table, aux_dic, ptcp_pst_table):
 
                                             #full_form = seed_full_form + f"{form}-{get_order_pronon_imp_decl( _pron_imperatif_0, _pron_imperatif_1)} !"
                                             full_form = seed_full_form + f"{form}-{_pron_imperatif}{tonique_1}!"
-                                            full_feature = seed_full_feature + f"{cases[_response[0]]}({_pron_feat_0});" + f"{cases[_response[1]]}({_pron_feat_1});"
+                                            full_feature = seed_full_feature + f"{cases[_response[0]]}({_pron_feat_0});"+ f"{cases[_response[1]]}({_pron_feat_1});"
                                             new_table[full_feature] = full_form
-                                            full_feature = seed_full_feature + f"{cases[_response[0]]}({_pron_feat_0});" + f"{cases[_response[1]]}({_pron_feat_1});NEG;"
+                                            full_feature = seed_full_feature + f"{cases[_response[0]]}({_pron_feat_0});"+ f"{cases[_response[1]]}({_pron_feat_1});NEG;"
                                             #full_form = seed_full_form + f"{get_ne(_pron_0, type=_response, form=form)}{get_order_pronon(_pron_0, _pron_1)} {form} pas !"
                                             # For negation : no "moi" "toi"
                                             _pron_imperatif, tonique_1 = two_pronouns_order_and_phonological_constrains(_pron_feat_0=_pron_feat_0, _pron_feat_1=_pron_feat_1, pron_0=_pron_0, pron_1=_pron_1, form=form,type=_response, mood=mood)
@@ -1018,13 +1027,15 @@ if __name__ == '__main__':
 
     new_table = {}
     # get unimorph
-    table = read_unimorph("unimorph")
+    table = read_unimorph("unimorph") # 19938 uniq lemma in unimporh in French 
     # get order
-    sorted_lemmas = freq_sort("fasttext")
+    sorted_lemmas = freq_sort("fasttext") 
+
     # sort unimorph lemmas
     sorted_set = set(sorted_lemmas)
     lemmas_to_do = {lemma for lemma in table.keys() if lemma in sorted_set}
     lemmas_to_do = sorted(lemmas_to_do, key=lambda lemma: sorted_lemmas.index(lemma))
+
 
     # load leff properties and PP derivation table
     with open("/Users/bemuller/Documents/Work/INRIA/dev/mighty_morph_tagging_tool/leff-extract/cases.json") as read:
@@ -1036,37 +1047,67 @@ if __name__ == '__main__':
     lemmas_done = []
     new_table = {}
     skipping = []
-    MAX_LEMMAS = 600
-    lemmas_to_do = lemmas_to_do[:MAX_LEMMAS]
-    for lemma in tqdm(lemmas_to_do):
-        if lemma in ["falloir", "valoir"]:
-            log = f"Skipping {lemma} because pp table empty in unimoprh?"
+    MAX_LEMMAS = 5000
+    lemmas_to_do = lemmas_to_do
+        # fixing accent problem
+    for lemma in tqdm(lemmas_to_do, total=len(lemmas_to_do)):
+        lemma_leff = lemma
+        if lemma in ["connaitre", "reconnaitre", "diner", "apparaitre",  "paraitre", "entrainer", "abimer", "déboiter", "repaitre"]:
+            lemma_leff = lemma.replace("i", "î")
+        elif lemma == "arreter":
+            lemma_leff = "arrêter"
+        elif lemma == "designer":
+            lemma_leff = "désigner"
+        elif lemma == "rafraichir":
+            lemma_leff = "rafraîchir"
+        elif lemma == "disparaitre":
+            lemma_leff = "disparaître"
+        elif lemma == "pecher":
+            lemma_leff = "pêcher"
+        elif lemma == "representer":
+            lemma_leff = "représenter"
+        elif lemma == "desirer":
+            lemma_leff = "désirer"
+        elif lemma == "referer":
+            lemma_leff = "référer"
+        elif lemma == "detester":
+            lemma_leff = "détester"
+        elif lemma == "resigner":
+            lemma_leff = "résigner"
+        elif lemma == "penetrer":
+            lemma_leff = "pénétrer"
+        elif lemma == "alterer":
+            lemma_leff = "altérer"
+
+        elif lemma in ["jeuner", "murir", "envouter"]:
+            lemma_leff = lemma.replace("u", "û")
+
+        if lemma in ["falloir", "valoir", "béer"]:
+            log = f"Skipping {lemma} because pp table empty in "
+            # actually because there are both actif_impersonnel --> so should be fixed after this
             print(log)
-            skipping.append(log)
+            skipping.append(lemma)
             continue
         try:
-            responses = features[lemma].keys()
-            _pp = pp[lemma]
+            responses = features[lemma_leff].keys()
+            _pp = pp[lemma_leff]
         except:
-            log  = ""
+            log = ""
             if lemma not in features:
                 log = f"Missing lemma {lemma} in lefff cases \n"
             if lemma not in pp:
                 log += f"Missing lemma {lemma} in aux table \n"
             print(log)
-            #missed_lemma.append(lemma)
-            skipping.append(log)
+            skipping.append(lemma)
             continue
 
-        _new_table = create_new_table(responses, table[lemma], aux_dic=features[lemma], ptcp_pst_table=_pp)
+        _new_table = create_new_table(responses, table[lemma], aux_dic=features[lemma_leff], ptcp_pst_table=_pp)
         new_table[lemma] = _new_table
         lemmas_done.append(lemma)
         if VERBOSE:
             print(f"{i} {lemma} done")
     write_data(lemmas_done, new_table, os.path.join('mighty_morph', f'{language}-w_leff.txt'))
-    print(f"Skipped {skipping} out of {len(lemmas_done)}")
+    print(f"Skipped {skipping} : {len(lemmas_done)-len(skipping)}/{len(lemmas_done)} lemma derived at the clause-level, {100-len(skipping)/len(lemmas_done)*100:0.2f}% coverage rate ")
 
 
 
-
-    

@@ -256,7 +256,7 @@ def read_unimorph(path, pos='V', exclude_doublets=True):
 
 def prepare_freq_list(lang2, lang3):
     if lang2 == 'ru':
-        alphabet =  set('абвгдеёжзийклмнопрстуфхцчшщъыьэюя')
+        alphabet = set('абвгдеёжзийклмнопрстуфхцчшщъыьэюя')
     else:
         alphabet = set('abcdefghijklmnopqrstuvwxyzäöüß')
     ft_path = os.path.join(vocab_dir, f'cc.{lang2}.300.vec')
