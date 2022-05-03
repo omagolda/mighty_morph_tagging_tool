@@ -2,6 +2,8 @@ import os
 import json
 import re
 
+from tqdm import tqdm
+
 language = 'fr'
 
 
@@ -122,16 +124,10 @@ def get_ptcp_pst_pn_expansion(case, aux, table_unimorph, table_leff, pron_argume
         return (
             # participe passé
                 [table_leff[aggrement] for aggrement in GET_LEFF_PP[pron_subject_feat]],
-            # pronoun subject list
-                #[nom_prons[pron_subject_feat] for _ in GET_LEFF_PP[pron_subject_feat]],
             # pronoun list features SUBJET
                 [f'{pron_subject_feat[0]};{feature}' for feature in GET_LEFF_PP[pron_subject_feat]],
-            # pronoun list ARGUMENT
-                #None if pron_argument_feat is None else [f'{pron_argument_feat[0]}:{feature}' for feature in GET_LEFF_PP[pron_argument_feat]],
             # pronoun list features ARGUMENT
-                #BUG: ? None if pron_argument_feat is None else [f'{pron_argument_feat[0]};{feature}' for feature in GET_LEFF_PP[pron_argument_feat]] --> the argument is not expanded cause do not impact the pp
                 None if pron_argument_feat is None else [f'{pron_argument_feat}' for _ in GET_LEFF_PP[pron_subject_feat]]
-                #[f'{pron_argument_feat[0]}:{feature}' for feature in GET_LEFF_PP[pron_argument_feat]]
                 )
 
     elif aux == "a":
@@ -139,11 +135,9 @@ def get_ptcp_pst_pn_expansion(case, aux, table_unimorph, table_leff, pron_argume
             # we agree the past participle with the 'pronom complément'
             # we know that the COD will be before the verb --> the argument needs to agree with the accusatif prono,
             try:
-                #breakpoint()
-                #table['V;NFIN']
+
                 return (
                     [table_leff[aggrement] for aggrement in GET_LEFF_PP[pron_argument_feat]],
-                    #BUG?[f'{pron_subject_feat[0]};{feature}' for feature in GET_LEFF_PP[pron_subject_feat]],
                     [pron_subject_feat for _ in  GET_LEFF_PP[pron_argument_feat]], # subject feat is not expanded cause the agreement will be with the argument
                     None if pron_argument_feat is None else [f'{pron_argument_feat[0]};{feature}' for feature in GET_LEFF_PP[pron_argument_feat]]
                 )
@@ -515,7 +509,7 @@ def create_new_table(responses, table, aux_dic, ptcp_pst_table):
 
     for _response in responses:
         aux_dic[_response] = list(set(aux_dic[_response]))
-        if len(aux_dic[_response]) > 1:
+        if VERBOSE and len(aux_dic[_response]) > 1:
             print(f"Warning: two aux for verb {nfin}")
 
     # if len(set(aux_dic[_response])) > 1:
@@ -1009,14 +1003,14 @@ def read_unimorph(unimorph_dir, pos='V', language="fr", exclude_doublets=True):
     return data
 
 
-def write_data(lemma_done: list, new_table: dict, language="fr"):
-    with open(os.path.join('mighty_morph', f'{language}-w_leff.txt'), 'w', encoding='utf8') as f:
+def write_data(lemma_done: list, new_table: dict, dir_data, language="fr"):
+    with open(dir_data, 'w', encoding='utf8') as f:
         for lemma in lemma_done:
             for feats, form in new_table[lemma].items():
                 line = '\t'.join([lemma, form, feats])+'\n'
                 line = line.replace('??', '?')
                 f.write(line)
-    print(os.path.join('mighty_morph', f'{language}-w_leff.txt'), " written")
+    print(dir_data, " written")
 
 
 if __name__ == '__main__':
@@ -1038,14 +1032,15 @@ if __name__ == '__main__':
     with open("/Users/bemuller/Documents/Work/INRIA/dev/mighty_morph_tagging_tool/leff-extract/derivation_pp.json") as read:
         pp = json.load(read)
 
-
     # get property
     lemmas_done = []
     new_table = {}
     skipping = []
-    for i, lemma in enumerate(lemmas_to_do):
+    MAX_LEMMAS = 600
+    lemmas_to_do = lemmas_to_do[:MAX_LEMMAS]
+    for lemma in tqdm(lemmas_to_do):
         if lemma in ["falloir", "valoir"]:
-            log = f"Skipping {lemma} because 'aux' matching pb in unimorph or empty leff table"
+            log = f"Skipping {lemma} because pp table empty in unimoprh?"
             print(log)
             skipping.append(log)
             continue
@@ -1053,22 +1048,23 @@ if __name__ == '__main__':
             responses = features[lemma].keys()
             _pp = pp[lemma]
         except:
-
-            log= f"Missing lemma {lemma} in leff cases or leff auxilliary"
+            log  = ""
+            if lemma not in features:
+                log = f"Missing lemma {lemma} in lefff cases \n"
+            if lemma not in pp:
+                log += f"Missing lemma {lemma} in aux table \n"
             print(log)
+            #missed_lemma.append(lemma)
             skipping.append(log)
             continue
-        if i > 600:
-            break
-        #if len(responses) == 0:
-        #    responses.append("0")
+
         _new_table = create_new_table(responses, table[lemma], aux_dic=features[lemma], ptcp_pst_table=_pp)
         new_table[lemma] = _new_table
         lemmas_done.append(lemma)
-        print(f"{i} {lemma} done")
-    write_data(lemmas_done, new_table)
+        if VERBOSE:
+            print(f"{i} {lemma} done")
+    write_data(lemmas_done, new_table, os.path.join('mighty_morph', f'{language}-w_leff.txt'))
     print(f"Skipped {skipping} out of {len(lemmas_done)}")
-    print(lemmas_done)
 
 
 
