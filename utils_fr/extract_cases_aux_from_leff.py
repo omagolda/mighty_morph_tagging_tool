@@ -6,7 +6,7 @@
 
 python utils_fr/extract_cases_aux_from_leff.py \
     --leff_directory ./lefff-3.4/v_new-fixed_duplicated.ilex \
-    --output_json_directory ./leff-extract/cases.json.json
+    --output_json_directory ./leff-extract/cases.json
 
 """
 
@@ -97,56 +97,62 @@ def extract_features_from_leff(lex_dir: Path, output_dir:str =None):
                 skipping_not_actif += 1
                 continue
 
-            if "@être" in feature_lex_line[4]:
-                lex_alexina[lex_line[0]]["aux"].append("e")
+            if "%actif_impersonnel" in feature_lex_line[5]:
+                PREFIX = "I"
             else:
-                lex_alexina[lex_line[0]]["aux"].append("a")
-            if "HAND_CHECKING" == lex_line[0]:
-                breakpoint()
+                PREFIX = "P"
 
+            if "@être" in feature_lex_line[4]:
+                lex_alexina[lex_line[0]]["aux"].append(f"{PREFIX}e")
+            else:
+                lex_alexina[lex_line[0]]["aux"].append(f"{PREFIX}a")
 
-            #if re.match("<.*Obj:\(?[^,>]*\|?cla\|?[^,>]*\)?.*>", feature_lex_line[3]) is not None:
             if not match_reflexif(feature_lex_line[1]):
 
                 if match_accusatif(feature_lex_line[3]):
                     # cla --> accusatif
-                    lex_alexina[lex_line[0]]["cases"].append("a")
-                    if "a" not in lex_alexina_2[lex_line[0]]:
-                        lex_alexina_2[lex_line[0]]["a"] = []
-                    lex_alexina_2[lex_line[0]]["a"].append(get_aux(feature_lex=feature_lex_line[4]))
+                    CODE = f"{PREFIX}a"
+                    lex_alexina[lex_line[0]]["cases"].append(CODE)
+                    if CODE not in lex_alexina_2[lex_line[0]]:
+                        lex_alexina_2[lex_line[0]][CODE] = []
+                    lex_alexina_2[lex_line[0]][CODE].append(get_aux(feature_lex=feature_lex_line[4]))
 
                 #if re.match("<.*Objà:\(?[^,>]*\|?cld\|?[^,>]*\)?.*>", feature_lex_line[3]) is not None:
                 if match_datif(feature_lex_line[3]):
                     # cld --> datif
-                    lex_alexina[lex_line[0]]["cases"].append("d")
-                    if "d" not in lex_alexina_2[lex_line[0]]:
-                        lex_alexina_2[lex_line[0]]["d"] = []
-                    lex_alexina_2[lex_line[0]]["d"].append(get_aux(feature_lex=feature_lex_line[4]))
+                    CODE = f"{PREFIX}d"
+                    lex_alexina[lex_line[0]]["cases"].append(CODE)
+                    if CODE not in lex_alexina_2[lex_line[0]]:
+                        lex_alexina_2[lex_line[0]][CODE] = []
+                    lex_alexina_2[lex_line[0]][CODE].append(get_aux(feature_lex=feature_lex_line[4]))
 
                 #if re.match("<.*Objde:\(?[^,>]*\|?en\|?[^,>]*\)?.*>", feature_lex_line[3]) is not None or re.match("<.*Dloc:\(?[^,>]*\|?en\|?[^,>]*\)?.*>", feature_lex_line[3]) is not None:
                 if match_genitif(feature_lex_line[3]):
                     # en --> genitif
-                    lex_alexina[lex_line[0]]["cases"].append("g")
-                    if "g" not in lex_alexina_2[lex_line[0]]:
-                        lex_alexina_2[lex_line[0]]["g"] = []
-                    lex_alexina_2[lex_line[0]]["g"].append(get_aux(feature_lex=feature_lex_line[4]))
+                    CODE = f"{PREFIX}g"
+                    lex_alexina[lex_line[0]]["cases"].append(CODE)
+                    if CODE not in lex_alexina_2[lex_line[0]]:
+                        lex_alexina_2[lex_line[0]][CODE] = []
+                    lex_alexina_2[lex_line[0]][CODE].append(get_aux(feature_lex=feature_lex_line[4]))
 
                 #if re.match("<.*Loc:\(?[^,>]*\|?y\|?[^,>]*\)?.*>", feature_lex_line[3]) is not None or re.match("<.*Objà:\(?[^,>]*\|?y\|?[^,>]*\)?.*>", feature_lex_line[3]) is not None:
                 if match_locatif(feature_lex_line[3]):
                     # y --> locatif
-                    lex_alexina[lex_line[0]]["cases"].append("l")
-                    if "l" not in lex_alexina_2[lex_line[0]]:
-                        lex_alexina_2[lex_line[0]]["l"] = []
+                    CODE = f"{PREFIX}l"
+                    lex_alexina[lex_line[0]]["cases"].append(CODE)
+                    if CODE not in lex_alexina_2[lex_line[0]]:
+                        lex_alexina_2[lex_line[0]][CODE] = []
                     print(f"{lex_line[0]} locatif with aux {get_aux(feature_lex=feature_lex_line[4])}")
-                    lex_alexina_2[lex_line[0]]["l"].append(get_aux(feature_lex=feature_lex_line[4]))
+                    lex_alexina_2[lex_line[0]][CODE].append(get_aux(feature_lex=feature_lex_line[4]))
 
                 #if "Obj" not in feature_lex_line[3] and "Suj" in feature_lex_line[3]:
                 if match_intransitif(feature_lex_line[3]):
                     # intransitif
-                    lex_alexina[lex_line[0]]["cases"].append("0")
-                    if "0" not in lex_alexina_2[lex_line[0]]:
-                        lex_alexina_2[lex_line[0]]["0"] = []
-                    lex_alexina_2[lex_line[0]]["0"].append(get_aux(feature_lex=feature_lex_line[4]))
+                    CODE = f"{PREFIX}0"
+                    lex_alexina[lex_line[0]]["cases"].append(CODE)
+                    if CODE not in lex_alexina_2[lex_line[0]]:
+                        lex_alexina_2[lex_line[0]][CODE] = []
+                    lex_alexina_2[lex_line[0]][CODE].append(get_aux(feature_lex=feature_lex_line[4]))
                 # if parenthesis we just ignore the feature --> and rely on the other features
                 #if "se Lemma" in feature_lex_line[1] or "s'Lemma" in feature_lex_line[1] or "(se) Lemma" in feature_lex_line[1] or "(s')Lemma" in feature_lex_line[1]:
 
@@ -154,7 +160,7 @@ def extract_features_from_leff(lex_dir: Path, output_dir:str =None):
                 #COMBINATIONS:
                 # ad
                 if match_datif(leff_data=feature_lex_line[3]) and match_accusatif(leff_data=feature_lex_line[3]):
-                    CODE = "ad"
+                    CODE = f"{PREFIX}ad"
                     lex_alexina[lex_line[0]]["cases"].append(CODE)
                     if CODE not in lex_alexina_2[lex_line[0]]:
                         lex_alexina_2[lex_line[0]][CODE] = []
@@ -162,7 +168,7 @@ def extract_features_from_leff(lex_dir: Path, output_dir:str =None):
                     lex_alexina_2[lex_line[0]][CODE].append(get_aux(feature_lex=feature_lex_line[4]))
 
                 if match_accusatif(leff_data=feature_lex_line[3]) and match_genitif(leff_data=feature_lex_line[3]):
-                    CODE = "ag"
+                    CODE = f"{PREFIX}ag"
                     lex_alexina[lex_line[0]]["cases"].append(CODE)
                     if CODE not in lex_alexina_2[lex_line[0]]:
                         lex_alexina_2[lex_line[0]][CODE] = []
@@ -170,7 +176,7 @@ def extract_features_from_leff(lex_dir: Path, output_dir:str =None):
                     lex_alexina_2[lex_line[0]][CODE].append(get_aux(feature_lex=feature_lex_line[4]))
 
                 if match_accusatif(leff_data=feature_lex_line[3]) and match_locatif(leff_data=feature_lex_line[3]):
-                    CODE = "al"
+                    CODE = f"{PREFIX}al"
                     lex_alexina[lex_line[0]]["cases"].append(CODE)
                     if CODE not in lex_alexina_2[lex_line[0]]:
                         lex_alexina_2[lex_line[0]][CODE] = []
@@ -178,7 +184,7 @@ def extract_features_from_leff(lex_dir: Path, output_dir:str =None):
                     lex_alexina_2[lex_line[0]][CODE].append(get_aux(feature_lex=feature_lex_line[4]))
 
                 if match_datif(leff_data=feature_lex_line[3]) and match_locatif(leff_data=feature_lex_line[3]):
-                    CODE = "dg"
+                    CODE = f"{PREFIX}dg"
                     lex_alexina[lex_line[0]]["cases"].append(CODE)
                     if CODE not in lex_alexina_2[lex_line[0]]:
                         lex_alexina_2[lex_line[0]][CODE] = []
@@ -187,7 +193,7 @@ def extract_features_from_leff(lex_dir: Path, output_dir:str =None):
 
             else:
                 if match_genitif(leff_data=feature_lex_line[3]):
-                    CODE = "rg"
+                    CODE = f"{PREFIX}rg"
                     lex_alexina[lex_line[0]]["cases"].append(CODE)
                     if CODE not in lex_alexina_2[lex_line[0]]:
                         lex_alexina_2[lex_line[0]][CODE] = []
@@ -195,7 +201,7 @@ def extract_features_from_leff(lex_dir: Path, output_dir:str =None):
                     lex_alexina_2[lex_line[0]][CODE].append(get_aux(feature_lex=feature_lex_line[4]))
 
                 if match_locatif(leff_data=feature_lex_line[3]):
-                    CODE = "rl"
+                    CODE = f"{PREFIX}rl"
                     lex_alexina[lex_line[0]]["cases"].append(CODE)
                     if CODE not in lex_alexina_2[lex_line[0]]:
                         lex_alexina_2[lex_line[0]][CODE] = []
@@ -203,13 +209,12 @@ def extract_features_from_leff(lex_dir: Path, output_dir:str =None):
                     lex_alexina_2[lex_line[0]][CODE].append(get_aux(feature_lex=feature_lex_line[4]))
 
                 if not (match_datif(leff_data=feature_lex_line[3]) or match_accusatif(leff_data=feature_lex_line[3]) or match_genitif(leff_data=feature_lex_line[3]) or match_locatif(leff_data=feature_lex_line[3]) ):
-
-                    lex_alexina[lex_line[0]]["cases"].append("r")
+                    CODE = f"{PREFIX}r"
+                    lex_alexina[lex_line[0]]["cases"].append(CODE)
                     if "r" not in lex_alexina_2[lex_line[0]]:
-                        lex_alexina_2[lex_line[0]]["r"] = []
+                        lex_alexina_2[lex_line[0]][CODE] = []
                     # always être for reflexive verbs
-                    lex_alexina_2[lex_line[0]]["r"].append("e")
-
+                    lex_alexina_2[lex_line[0]][CODE].append("e")
 
         print(f"{len(lex_alexina)} verbs found in alexina skipped {skipping} lines, {skipping_no_bracket} no brackets, "
               f"{skipping_not_actif} not actif")

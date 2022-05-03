@@ -115,7 +115,6 @@ GET_LEFF_PP = {
                                }
 
 
-
 def get_ptcp_pst_pn_expansion(case, aux, table_unimorph, table_leff, pron_argument_feat, pron_subject_feat):
     ptcp_pst = table_unimorph["V.PTCP;PST"]
     if aux == "e":
@@ -135,17 +134,17 @@ def get_ptcp_pst_pn_expansion(case, aux, table_unimorph, table_leff, pron_argume
             # we agree the past participle with the 'pronom complément'
             # we know that the COD will be before the verb --> the argument needs to agree with the accusatif prono,
             try:
-
                 return (
                     [table_leff[aggrement] for aggrement in GET_LEFF_PP[pron_argument_feat]],
                     [pron_subject_feat for _ in  GET_LEFF_PP[pron_argument_feat]], # subject feat is not expanded cause the agreement will be with the argument
-                    None if pron_argument_feat is None else [f'{pron_argument_feat[0]};{feature}' for feature in GET_LEFF_PP[pron_argument_feat]]
-                )
+                    None if pron_argument_feat is None else [f'{pron_argument_feat[0]};{feature}' for feature in GET_LEFF_PP[pron_argument_feat]])
             except:
-                print(f"Warning: could not do the agreement for aux avoir , verb {ptcp_pst}")
-                breakpoint()
-                return ([ptcp_pst], [pron_subject_feat], [pron_argument_feat])
+                if ptcp_pst not in ["fallu", "valut"]:
+                    # in 'fallut" it is ok because only MASC SG
+                    breakpoint()
+                    print(f"Warning: could not do the agreement for aux avoir , verb {ptcp_pst}")
 
+                return ([ptcp_pst], [pron_subject_feat], [pron_argument_feat])
         else:
 
             return ([ptcp_pst], [pron_subject_feat], [pron_argument_feat])
@@ -483,6 +482,14 @@ def get_order_pronon_imp_decl(_pron_imperatif_0, _pron_imperatif_1):
     return f"{_pron_imperatif_0} {_pron_imperatif_1}"
 
 
+def only_impersonel_verb(responses):
+    for r in responses:
+        if not r.startswith("I"):
+            return False
+    return True
+
+
+
 def get_order_pronon(_pron_0, _pron_1):
     # TODO
     # me/te/le/nous/vous/le/les
@@ -506,19 +513,12 @@ def create_new_table(responses, table, aux_dic, ptcp_pst_table):
 
     nfin = table['V;NFIN']
     new_table = {}
-
     for _response in responses:
         aux_dic[_response] = list(set(aux_dic[_response]))
-        if VERBOSE and len(aux_dic[_response]) > 1:
-            print(f"Warning: two aux for verb {nfin}")
-
-    # if len(set(aux_dic[_response])) > 1:
-    # print(f"Warning: Several {aux} in {set(aux_dic[_response])} for {nfin} cas {_response}")
     for mood in moods:
         for tense in tenses:
-            # TODO: if else no IMPERATIVE : no future
             for i, aspect in enumerate(aspects):
-                # TODO: ifelse
+
                 if tense != "PST" and i > 0:
                     # only going through the tensexmood one (cause aspect do not impact present and future)
                     continue
@@ -527,6 +527,9 @@ def create_new_table(responses, table, aux_dic, ptcp_pst_table):
                     pers = ";".join(pn.split(";")[:2])
                     unimorph_match = f"V;{mood};{tense};{pers}"
 
+                    if only_impersonel_verb(responses) and pers != "3;SG":
+                        # we dont look for the form if it is impersonel and not 'il'
+                        continue
                     try:
                         if mood == "IMP":
                             if pers not in ["2;SG", "1;PL", "2;PL"] or tense != "PRS":
@@ -561,12 +564,6 @@ def create_new_table(responses, table, aux_dic, ptcp_pst_table):
                         print(f"Warning: form {nfin} : 'V.PTCP;PST' not found in unimorph so skipping it {e}")
                         continue
 
-
-                        # print(f"form {form} working for {unimorph_match}")
-
-                    # Type of clause: affirmative, interrogative, negative, negative interrogative
-
-                    # affirmative
                     if tense == "PST":
                         if aspect == "PFV":
                             tense_feature = f'{tense}:LGSPEC1'
@@ -576,16 +573,27 @@ def create_new_table(responses, table, aux_dic, ptcp_pst_table):
                         tense_feature = tense
 
                     for _response in responses:
-                        aux_dic[_response] = list(set(aux_dic[_response]))
-                        for i, aux in enumerate(aux_dic[_response]):
-                            AUX = aux+";"
-                            #if len(set(aux_dic[_response])) > 1:
-                                #print(f"Warning: Several {aux} in {set(aux_dic[_response])} for {nfin} cas {_response}")
+                        impersonel_verb = _response[0] == "I"
+                        original_feat = _response
+                        #try:
+                            #aux_dic = list(set(aux_dic[original_feat]))
+                        #except:
+                        #    breakpoint()
 
-                            # cases
+                        if impersonel_verb:
+                            if pn != "3;SG;MASC":
+                                #breakpoint()
+                                continue
+                            print(f"{nfin} is impersonel")
+                        # skip if it is not "il"  and not IND
+
+                        _response = _response[1:]
+                        for i, aux in enumerate(aux_dic[original_feat]):
+                            AUX = aux+";"
+
                             if _response not in ["a", "d", "l", "g", "0", "r", "ad", "al", "ag", "dg", "rl", "rg"]:
                                 print("Skipping ", _response)
-                                continue
+                                raise("Not supported")
 
                                 #raise(Exception(f"{_response} not supported "))
 
@@ -1047,8 +1055,8 @@ if __name__ == '__main__':
     lemmas_done = []
     new_table = {}
     skipping = []
-    MAX_LEMMAS = 5000
-    lemmas_to_do = lemmas_to_do
+    MAX_LEMMAS = 700
+    lemmas_to_do = lemmas_to_do[:MAX_LEMMAS]
         # fixing accent problem
     for lemma in tqdm(lemmas_to_do, total=len(lemmas_to_do)):
         lemma_leff = lemma
@@ -1082,7 +1090,8 @@ if __name__ == '__main__':
         elif lemma in ["jeuner", "murir", "envouter"]:
             lemma_leff = lemma.replace("u", "û")
 
-        if lemma in ["falloir", "valoir", "béer"]:
+        #if lemma in ["falloir", "valoir", "béer"]:
+        if lemma in ["béer"]:
             log = f"Skipping {lemma} because pp table empty in "
             # actually because there are both actif_impersonnel --> so should be fixed after this
             print(log)
