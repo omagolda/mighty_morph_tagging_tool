@@ -183,7 +183,7 @@ def append_question(new_table, _pron_feat, seed_full_feature, form, subject, cas
         full_feature = seed_full_feature
     else:
         raise(Exception(f"case {case} not supported"))
-    full_feature += "Q"
+    full_feature += "Q;"
 
     # form
     if aux is None:
@@ -207,7 +207,7 @@ def append_negation(new_table,  _pron_feat, seed_full_feature, form, subject, ca
         full_feature = seed_full_feature
     else:
         raise(Exception(f"case {case} not supported"))
-    full_feature += "NEG"
+    full_feature += "NEG;"
     # forms
 
     if aux is None:
@@ -229,7 +229,7 @@ def append_question_and_negation(new_table, _pron_feat, seed_full_feature, form,
         full_feature = seed_full_feature
     else:
         raise(Exception(f"case {case} not supported"))
-    full_feature += "NEG;Q"
+    full_feature += "NEG;Q;"
     # form
     if aux is None:
         pron, subject = phonological_constrain_pronons(pron=pron, form=form, type=case, subject=subject)
@@ -244,12 +244,18 @@ def append_4_types_of_sentences(new_table, _pron_feat, seed_full_feature, form, 
     append_declarative_sent(new_table=new_table, _pron_feat=_pron_feat, seed_full_feature=seed_full_feature, form=form,
                             subject=subject, case=case, seed_full_form=seed_full_form,
                             pron=pron, aux=aux)
-    append_question(new_table=new_table, _pron_feat=_pron_feat, seed_full_feature=seed_full_feature, form=form,
-                    subject=subject, case=case, seed_full_form=seed_full_form,
-                    pron=pron, aux=aux)
+
     append_negation(new_table=new_table, _pron_feat=_pron_feat, seed_full_feature=seed_full_feature, form=form,
                     subject=subject, case=case, seed_full_form=seed_full_form,
                      pron=pron, aux=aux)
+    
+    #breakpoint()
+    # we exclude 1;SG IND PRS
+    #if 'IND;PRS;NOM(1;SG);' in seed_full_feature:
+        #breakpoint()
+    append_question(new_table=new_table, _pron_feat=_pron_feat, seed_full_feature=seed_full_feature, form=form,
+                    subject=subject, case=case, seed_full_form=seed_full_form,
+                    pron=pron, aux=aux)
     append_question_and_negation(new_table=new_table, _pron_feat=_pron_feat, seed_full_feature=seed_full_feature,
                                  form=form, subject=subject, case=case, seed_full_form=seed_full_form,
                                  pron=pron, aux=aux)
@@ -283,7 +289,7 @@ def append_question_sent_bi_pron(new_table, seed_full_feature, form, subject, ca
     assert len(case) == 2
 
     full_feature = seed_full_feature + f"{cases[case[0]]}({_pron_feat_0});" + f"{cases[case[1]]}({_pron_feat_1});"
-    full_feature += "Q"
+    full_feature += "Q;"
 
     pronon_pairs, tonique_1 = two_pronouns_order_and_phonological_constrains(pron_0=pron_0, pron_1=pron_1,
                                                                              _pron_feat_0=_pron_feat_0,
@@ -302,7 +308,7 @@ def append_neg_sent_bi_pron(new_table, seed_full_feature, form, subject, case, s
     assert len(case) == 2
 
     full_feature = seed_full_feature + f"{cases[case[0]]}({_pron_feat_0});" + f"{cases[case[1]]}({_pron_feat_1});"
-    full_feature += "NEG"
+    full_feature += "NEG;"
 
     pronon_pairs, tonique_1 = two_pronouns_order_and_phonological_constrains(pron_0=pron_0, pron_1=pron_1,
                                                                              _pron_feat_0=_pron_feat_0,
@@ -323,7 +329,7 @@ def append_question_negation_sent_bi_pron(new_table, seed_full_feature, form, su
     assert len(case) == 2
 
     full_feature = seed_full_feature + f"{cases[case[0]]}({_pron_feat_0});" + f"{cases[case[1]]}({_pron_feat_1});"
-    full_feature += "NEG;Q"
+    full_feature += "NEG;Q;"
     pronon_pairs, tonique_1 = two_pronouns_order_and_phonological_constrains(pron_0=pron_0, pron_1=pron_1,
                                                                   _pron_feat_0=_pron_feat_0,
                                                                   _pron_feat_1=_pron_feat_1,
@@ -342,10 +348,14 @@ def append_4_types_of_sentences_two_pron(new_table, seed_full_feature, form, sub
     append_declarative_sent_bi_pron(new_table, seed_full_feature, form, subject, case, seed_full_form,
                                     _pron_feat_0=_pron_feat_0, pron_0=pron_0, _pron_feat_1=_pron_feat_1, pron_1=pron_1,
                                     aux=aux)
-    append_question_sent_bi_pron(new_table, seed_full_feature, form, subject, case, seed_full_form,
-                                    _pron_feat_0=_pron_feat_0, pron_0=pron_0, _pron_feat_1=_pron_feat_1, pron_1=pron_1,
-                                    aux=aux)
+
+
     append_neg_sent_bi_pron(new_table, seed_full_feature, form, subject, case, seed_full_form,
+                                 _pron_feat_0=_pron_feat_0, pron_0=pron_0, _pron_feat_1=_pron_feat_1, pron_1=pron_1,
+                                 aux=aux)
+    #if 'IND;PRS;NOM(1;SG);' in seed_full_feature:
+    #    breakpoint()
+    append_question_sent_bi_pron(new_table, seed_full_feature, form, subject, case, seed_full_form,
                                  _pron_feat_0=_pron_feat_0, pron_0=pron_0, _pron_feat_1=_pron_feat_1, pron_1=pron_1,
                                  aux=aux)
     append_question_negation_sent_bi_pron(new_table, seed_full_feature, form, subject, case, seed_full_form,
@@ -575,10 +585,6 @@ def create_new_table(responses, table, aux_dic, ptcp_pst_table):
                     for _response in responses:
                         impersonel_verb = _response[0] == "I"
                         original_feat = _response
-                        #try:
-                            #aux_dic = list(set(aux_dic[original_feat]))
-                        #except:
-                        #    breakpoint()
 
                         if impersonel_verb:
                             if pn != "3;SG;MASC":
@@ -1055,7 +1061,7 @@ if __name__ == '__main__':
     lemmas_done = []
     new_table = {}
     skipping = []
-    MAX_LEMMAS = 700
+    MAX_LEMMAS = 10000
     lemmas_to_do = lemmas_to_do[:MAX_LEMMAS]
         # fixing accent problem
     for lemma in tqdm(lemmas_to_do, total=len(lemmas_to_do)):
