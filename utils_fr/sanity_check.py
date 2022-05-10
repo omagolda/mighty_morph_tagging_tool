@@ -74,9 +74,6 @@ def sanity_check_mighty_morph(file='fr-w_leff.txt', dir=""):
         print("There is a unique feature for each (lemma, form)")
 
 
-
-
 if __name__ == "__main__":
-    #sanity_check_mighty_morph(dir="/Users/bemuller/Documents/Work/INRIA/dev/mighty_morph_tagging_tool")
-    path = Path('/Users/bemuller/Documents/Work/INRIA/dev/mighty_morph_tagging_tool')
-    aggregate_gender_mark(path/'mighty_morph'/'fr-w_leff.txt', path/'mighty_morph'/'fr-w_leff_final.txt')
+
+    sanity_check_mighty_morph(dir="/Users/bemuller/Documents/Work/INRIA/dev/mighty_morph_tagging_tool")

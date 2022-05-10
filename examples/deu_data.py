@@ -3,7 +3,7 @@ sys.path.insert(0,".")
 from utils import *
 from copy import deepcopy
 
-language = 'fr'
+language = 'deu'
 
 person_number = {'1;SG', '1;PL', '2;SG', '2;PL', '3;SG;MASC', '3;SG;FEM', '3;SG;NEUT', '3;PL', '2;FRML'}
 nom_prons = {'1;SG': 'ich', '1;PL': 'wir', '2;SG': 'du', '2;PL': 'ihr', '3;SG;MASC': 'er', '3;SG;FEM': 'sie', '3;SG;NEUT': 'es', '3;PL': 'sie', '2;FRML': 'Sie'}

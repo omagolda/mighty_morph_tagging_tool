@@ -74,4 +74,4 @@ def aggregate_gender_mark(dir, output_dir, add_readme=False):
 if __name__ == "__main__":
 
     path = Path('/Users/bemuller/Documents/Work/INRIA/dev/mighty_morph_tagging_tool')
-    aggregate_gender_mark(path/'mighty_morph'/'fr-w_leff.txt', path/'mighty_morph'/'fr-w_leff_final.txt', add_readme=True)
+    aggregate_gender_mark(path/'mighty_morph'/'fr-w_leff.txt', path/'mighty_morph'/'fr-w_leff.txt', add_readme=True)

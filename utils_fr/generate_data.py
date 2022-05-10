@@ -620,7 +620,7 @@ def create_new_table(responses, table, aux_dic, ptcp_pst_table):
                                 else:
                                     # SIMPLE
 
-                                    full_feature = f"{AUX}{mood};{tense_feature};NOM({pn});"
+                                    full_feature = f"{mood};{tense_feature};NOM({pn});"
 
                                     append_4_types_of_sentences(new_table, _pron_feat=None,
                                                                 seed_full_feature=full_feature,
@@ -1061,7 +1061,7 @@ if __name__ == '__main__':
     lemmas_done = []
     new_table = {}
     skipping = []
-    MAX_LEMMAS = 10000
+    MAX_LEMMAS = 100
     lemmas_to_do = lemmas_to_do[:MAX_LEMMAS]
         # fixing accent problem
     for lemma in tqdm(lemmas_to_do, total=len(lemmas_to_do)):
@@ -1121,7 +1121,7 @@ if __name__ == '__main__':
         lemmas_done.append(lemma)
         if VERBOSE:
             print(f"{i} {lemma} done")
-    write_data(lemmas_done, new_table, os.path.join('mighty_morph', f'{language}-w_leff.txt'))
+    write_data(lemmas_done, new_table, os.path.join('mighty_morph', f'{language}-w_leff-TEST.txt'))
     print(f"Skipped {skipping} : {len(lemmas_done)-len(skipping)}/{len(lemmas_done)} lemma derived at the clause-level, {100-len(skipping)/len(lemmas_done)*100:0.2f}% coverage rate ")
 
 
