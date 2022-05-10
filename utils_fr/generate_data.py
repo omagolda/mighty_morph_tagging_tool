@@ -594,8 +594,11 @@ def create_new_table(responses, table, aux_dic, ptcp_pst_table):
                         # skip if it is not "il"  and not IND
 
                         _response = _response[1:]
+                        breakpoint()
                         for i, aux in enumerate(aux_dic[original_feat]):
                             AUX = aux+";"
+
+
 
                             if _response not in ["a", "d", "l", "g", "0", "r", "ad", "al", "ag", "dg", "rl", "rg"]:
                                 print("Skipping ", _response)
