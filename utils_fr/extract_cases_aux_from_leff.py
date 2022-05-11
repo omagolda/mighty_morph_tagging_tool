@@ -192,8 +192,9 @@ def extract_features_from_leff(lex_dir: Path, output_dir:str =None):
                     lex_alexina_2[lex_line[0]][CODE].append(get_aux(feature_lex=feature_lex_line[4]))
 
             else:
+                # reflexif case
                 if match_genitif(leff_data=feature_lex_line[3]):
-                    CODE = f"{PREFIX}rg"
+                    CODE = f"{PREFIX}gr"
                     lex_alexina[lex_line[0]]["cases"].append(CODE)
                     if CODE not in lex_alexina_2[lex_line[0]]:
                         lex_alexina_2[lex_line[0]][CODE] = []
@@ -201,7 +202,21 @@ def extract_features_from_leff(lex_dir: Path, output_dir:str =None):
                     lex_alexina_2[lex_line[0]][CODE].append(get_aux(feature_lex=feature_lex_line[4]))
 
                 if match_locatif(leff_data=feature_lex_line[3]):
-                    CODE = f"{PREFIX}rl"
+                    CODE = f"{PREFIX}lr"
+                    lex_alexina[lex_line[0]]["cases"].append(CODE)
+                    if CODE not in lex_alexina_2[lex_line[0]]:
+                        lex_alexina_2[lex_line[0]][CODE] = []
+                    # always être for reflexive verbs
+                    lex_alexina_2[lex_line[0]][CODE].append(get_aux(feature_lex=feature_lex_line[4]))
+                if match_datif(leff_data=feature_lex_line[3]):
+                    CODE = f"{PREFIX}dr"
+                    lex_alexina[lex_line[0]]["cases"].append(CODE)
+                    if CODE not in lex_alexina_2[lex_line[0]]:
+                        lex_alexina_2[lex_line[0]][CODE] = []
+                    # always être for reflexive verbs
+                    lex_alexina_2[lex_line[0]][CODE].append(get_aux(feature_lex=feature_lex_line[4]))
+                if match_accusatif(leff_data=feature_lex_line[3]):
+                    CODE = f"{PREFIX}ar"
                     lex_alexina[lex_line[0]]["cases"].append(CODE)
                     if CODE not in lex_alexina_2[lex_line[0]]:
                         lex_alexina_2[lex_line[0]][CODE] = []
