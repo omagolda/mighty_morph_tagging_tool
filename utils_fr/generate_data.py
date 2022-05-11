@@ -523,8 +523,10 @@ def create_new_table(responses, table, aux_dic, ptcp_pst_table):
 
     nfin = table['V;NFIN']
     new_table = {}
-    for _response in responses:
-        aux_dic[_response] = list(set(aux_dic[_response]))
+
+    #for _response in responses:
+    #    aux_dic[_response] = list(set(aux_dic[_response]))
+
     for mood in moods:
         for tense in tenses:
             for i, aspect in enumerate(aspects):
@@ -594,11 +596,9 @@ def create_new_table(responses, table, aux_dic, ptcp_pst_table):
                         # skip if it is not "il"  and not IND
 
                         _response = _response[1:]
-                        breakpoint()
+
                         for i, aux in enumerate(aux_dic[original_feat]):
                             AUX = aux+";"
-
-
 
                             if _response not in ["a", "d", "l", "g", "0", "r", "ad", "al", "ag", "dg", "rl", "rg"]:
                                 print("Skipping ", _response)
@@ -640,7 +640,8 @@ def create_new_table(responses, table, aux_dic, ptcp_pst_table):
                                         if tense == "FUT":
                                             # get FUT --> get future
                                             aux_form = auxiliary_dict[aux]["IND;FUT"][pers]
-                                            seed_full_feature = f"{AUX}IND;FUT;PFV;NOM({pn_feat_subject});"
+                                            #seed_full_feature = f"{AUX}IND;FUT;PFV;NOM({pn_feat_subject});"
+                                            seed_full_feature = f"IND;FUT;PFV;NOM({pn_feat_subject});"
 
                                             append_4_types_of_sentences(new_table, _pron_feat=None,
                                                                         seed_full_feature=seed_full_feature,
@@ -653,7 +654,8 @@ def create_new_table(responses, table, aux_dic, ptcp_pst_table):
                                         elif tense == "PST":
                                             # present perfect / passé composé --> présent
                                             aux_form = auxiliary_dict[aux]["IND;PRS"][pers]
-                                            seed_full_feature = f"{AUX}IND;PST;NOM({pn_feat_subject});"
+                                            #seed_full_feature = f"{AUX}IND;PST;NOM({pn_feat_subject});"
+                                            seed_full_feature = f"IND;PST;NOM({pn_feat_subject});"
                                             append_4_types_of_sentences(new_table, _pron_feat=None,
                                                                         seed_full_feature=seed_full_feature,
                                                                         seed_full_form=seed_full_form,
@@ -664,7 +666,8 @@ def create_new_table(responses, table, aux_dic, ptcp_pst_table):
 
                                             # past-perfect / plus que parfait --> imparfait
                                             aux_form = auxiliary_dict[aux]["IND;PST;IPFV"][pers]
-                                            seed_full_feature = f"{AUX}IND;PST;PFV;NOM({pn_feat_subject});"
+                                            #seed_full_feature = f"{AUX}IND;PST;PFV;NOM({pn_feat_subject});"
+                                            seed_full_feature = f"IND;PST;PFV;NOM({pn_feat_subject});"
                                             append_4_types_of_sentences(new_table, _pron_feat=None,
                                                                         seed_full_feature=seed_full_feature,
                                                                         seed_full_form=seed_full_form,
@@ -675,7 +678,8 @@ def create_new_table(responses, table, aux_dic, ptcp_pst_table):
 
                                             # passé antérieur --> passé simple
                                             aux_form = auxiliary_dict[aux]["IND;PST;PFV;LGSPEC1"][pers]
-                                            seed_full_feature = f"{AUX}IND;PST;PFV;LGSPEC1;NOM({pn_feat_subject});"
+                                            #seed_full_feature = f"{AUX}IND;PST;PFV;LGSPEC1;NOM({pn_feat_subject});"
+                                            seed_full_feature = f"IND;PST;PFV;LGSPEC1;NOM({pn_feat_subject});"
                                             append_4_types_of_sentences(new_table, _pron_feat=None,
                                                                         seed_full_feature=seed_full_feature,
                                                                         seed_full_form=seed_full_form,
@@ -688,7 +692,8 @@ def create_new_table(responses, table, aux_dic, ptcp_pst_table):
                                         # passé antérieur --> passé simple
                                         if tense == "PST":
                                             aux_form = auxiliary_dict[aux]["COND;PST"][pers]
-                                            seed_full_feature = f"{AUX}COND;PFV;NOM({pn_feat_subject});"
+                                            #seed_full_feature = f"{AUX}COND;PFV;NOM({pn_feat_subject});"
+                                            seed_full_feature = f"COND;PFV;NOM({pn_feat_subject});"
                                             #??full_feature = seed_full_feature #+ f"{cases[_response]}({_pron_feat})"
                                             append_4_types_of_sentences(new_table, _pron_feat=None,
                                                                         seed_full_feature=seed_full_feature,
@@ -773,7 +778,8 @@ def create_new_table(responses, table, aux_dic, ptcp_pst_table):
                                                 if tense == "FUT":
                                                     # get FUT --> get future
                                                     aux_form = auxiliary_dict[aux]["IND;FUT"][pers]
-                                                    seed_full_feature = f"{AUX}IND;FUT;PFV;NOM({pn_feat_subject});"
+                                                    #seed_full_feature = f"{AUX}IND;FUT;PFV;NOM({pn_feat_subject});"
+                                                    seed_full_feature = f"IND;FUT;PFV;NOM({pn_feat_subject});"
 
                                                     append_4_types_of_sentences_two_pron(new_table, seed_full_feature,
                                                                                     ptcp_pst, nom_prons[pn],
@@ -791,7 +797,8 @@ def create_new_table(responses, table, aux_dic, ptcp_pst_table):
                                                 elif tense == "PST":
                                                     # present perfect / passé composé --> présent
                                                     aux_form = auxiliary_dict[aux]["IND;PRS"][pers]
-                                                    seed_full_feature = f"{AUX}IND;PST;NOM({pn_feat_subject});"
+                                                    #seed_full_feature = f"{AUX}IND;PST;NOM({pn_feat_subject});"
+                                                    seed_full_feature = f"IND;PST;NOM({pn_feat_subject});"
 
                                                     append_4_types_of_sentences_two_pron(new_table, seed_full_feature,
                                                                                     ptcp_pst, nom_prons[pn],
@@ -807,7 +814,8 @@ def create_new_table(responses, table, aux_dic, ptcp_pst_table):
 
                                                     # past-perfect / plus que parfait --> imparfait
                                                     aux_form = auxiliary_dict[aux]["IND;PST;IPFV"][pers]
-                                                    seed_full_feature = f"{AUX}IND;PST;PFV;NOM({pn_feat_subject});"
+                                                    #seed_full_feature = f"{AUX}IND;PST;PFV;NOM({pn_feat_subject});"
+                                                    seed_full_feature = f"IND;PST;PFV;NOM({pn_feat_subject});"
 
                                                     append_4_types_of_sentences_two_pron(new_table, seed_full_feature,
                                                                                     ptcp_pst, nom_prons[pn],
@@ -823,7 +831,8 @@ def create_new_table(responses, table, aux_dic, ptcp_pst_table):
 
                                                     # passé antérieur --> passé simple
                                                     aux_form = auxiliary_dict[aux]["IND;PST;PFV;LGSPEC1"][pers]
-                                                    seed_full_feature = f"{AUX}IND;PST;PFV;LGSPEC1;NOM({pn_feat_subject});"
+                                                    #seed_full_feature = f"{AUX}IND;PST;PFV;LGSPEC1;NOM({pn_feat_subject});"
+                                                    seed_full_feature = f"IND;PST;PFV;LGSPEC1;NOM({pn_feat_subject});"
 
                                                     append_4_types_of_sentences_two_pron(new_table, seed_full_feature,
                                                                                     ptcp_pst, nom_prons[pn],
@@ -840,7 +849,8 @@ def create_new_table(responses, table, aux_dic, ptcp_pst_table):
                                                 # passé antérieur --> passé simple
                                                 if tense == "PST":
                                                     aux_form = auxiliary_dict[aux]["COND;PST"][pers]
-                                                    seed_full_feature = f"{AUX}COND;PFV;NOM({pn_feat_subject});"
+                                                    #seed_full_feature = f"{AUX}COND;PFV;NOM({pn_feat_subject});"
+                                                    seed_full_feature = f"COND;PFV;NOM({pn_feat_subject});"
 
                                                     append_4_types_of_sentences_two_pron(new_table, seed_full_feature,
                                                                                     ptcp_pst, nom_prons[pn],
@@ -911,7 +921,8 @@ def create_new_table(responses, table, aux_dic, ptcp_pst_table):
                                             if tense == "FUT":
                                                 # get FUT --> get future
                                                 aux_form = auxiliary_dict[aux]["IND;FUT"][pers]
-                                                seed_full_feature = f"{AUX}IND;FUT;PFV;NOM({pn_feat_subject});"
+                                                #seed_full_feature = f"{AUX}IND;FUT;PFV;NOM({pn_feat_subject});"
+                                                seed_full_feature = f"IND;FUT;PFV;NOM({pn_feat_subject});"
                                                 #full_feature = seed_full_feature + f"{cases[_response]}({pn_feat_arg})"
 
                                                 append_4_types_of_sentences(new_table, _pron_feat=pn_feat_arg,
@@ -927,7 +938,8 @@ def create_new_table(responses, table, aux_dic, ptcp_pst_table):
                                             elif tense == "PST":
                                                 # present perfect / passé composé --> présent
                                                 aux_form = auxiliary_dict[aux]["IND;PRS"][pers]
-                                                seed_full_feature = f"{AUX}IND;PST;NOM({pn_feat_subject});"
+                                                #seed_full_feature = f"{AUX}IND;PST;NOM({pn_feat_subject});"
+                                                seed_full_feature = f"IND;PST;NOM({pn_feat_subject});"
                                                 #full_feature = seed_full_feature + f"{cases[_response]}({_pron_feat})"
 
                                                 append_4_types_of_sentences(new_table, _pron_feat=pn_feat_arg,
@@ -942,7 +954,8 @@ def create_new_table(responses, table, aux_dic, ptcp_pst_table):
 
                                                 # past-perfect / plus que parfait --> imparfait
                                                 aux_form = auxiliary_dict[aux]["IND;PST;IPFV"][pers]
-                                                seed_full_feature = f"{AUX}IND;PST;PFV;NOM({pn_feat_subject});"
+                                                #seed_full_feature = f"{AUX}IND;PST;PFV;NOM({pn_feat_subject});"
+                                                seed_full_feature = f"IND;PST;PFV;NOM({pn_feat_subject});"
 
                                                 append_4_types_of_sentences(new_table, _pron_feat=pn_feat_arg,
                                                                             seed_full_feature=seed_full_feature,
@@ -956,7 +969,8 @@ def create_new_table(responses, table, aux_dic, ptcp_pst_table):
 
                                                 # passé antérieur --> passé simple
                                                 aux_form = auxiliary_dict[aux]["IND;PST;PFV;LGSPEC1"][pers]
-                                                seed_full_feature = f"{AUX}IND;PST;PFV;LGSPEC1;NOM({pn_feat_subject});"
+                                                #seed_full_feature = f"{AUX}IND;PST;PFV;LGSPEC1;NOM({pn_feat_subject});"
+                                                seed_full_feature = f"IND;PST;PFV;LGSPEC1;NOM({pn_feat_subject});"
 
                                                 append_4_types_of_sentences(new_table, _pron_feat=pn_feat_arg,
                                                                             seed_full_feature=seed_full_feature,
@@ -971,7 +985,8 @@ def create_new_table(responses, table, aux_dic, ptcp_pst_table):
                                             # passé antérieur --> passé simple
                                             if tense == "PST":
                                                 aux_form = auxiliary_dict[aux]["COND;PST"][pers]
-                                                seed_full_feature = f"{AUX}COND;PFV;NOM({pn_feat_subject});"
+                                                #seed_full_feature = f"{AUX}COND;PFV;NOM({pn_feat_subject});"
+                                                seed_full_feature = f"COND;PFV;NOM({pn_feat_subject});"
 
                                                 append_4_types_of_sentences(new_table, _pron_feat=pn_feat_arg,
                                                                             seed_full_feature=seed_full_feature,
@@ -1064,7 +1079,7 @@ if __name__ == '__main__':
     lemmas_done = []
     new_table = {}
     skipping = []
-    MAX_LEMMAS = 100
+    MAX_LEMMAS, count_two_aux_verb = 500, 0
     lemmas_to_do = lemmas_to_do[:MAX_LEMMAS]
         # fixing accent problem
     for lemma in tqdm(lemmas_to_do, total=len(lemmas_to_do)):
@@ -1119,11 +1134,36 @@ if __name__ == '__main__':
             skipping.append(lemma)
             continue
 
-        _new_table = create_new_table(responses, table[lemma], aux_dic=features[lemma_leff], ptcp_pst_table=_pp)
-        new_table[lemma] = _new_table
-        lemmas_done.append(lemma)
+        lemma_has_two_aux = False
+        for _response in responses:
+            features[lemma_leff][_response] = list(set(features[lemma_leff][_response]))
+            if len(features[lemma_leff][_response]) > 1:
+                assert len(features[lemma_leff][_response]) == 2
+                lemma_has_two_aux = True
+
+        if lemma_has_two_aux:
+            print("TWO AUX LEMMA")
+            feature_dic_etre = {case: ls_aux for case, ls_aux in features[lemma_leff].items() if "e" in ls_aux}
+            feature_dic_etre = {case: ["e"] for case in feature_dic_etre}
+
+            _new_table = create_new_table(feature_dic_etre.keys(), table[lemma], aux_dic=feature_dic_etre, ptcp_pst_table=_pp)
+            new_table[f'être {lemma}'] = _new_table
+            lemmas_done.append(f'être {lemma}')
+
+            feature_dic_avoir = {case: ls_aux for case, ls_aux in features[lemma_leff].items() if "a" in ls_aux}
+            feature_dic_avoir = {case: ["a"] for case in feature_dic_avoir}
+
+            _new_table = create_new_table(feature_dic_avoir.keys(), table[lemma], aux_dic=feature_dic_avoir, ptcp_pst_table=_pp)
+            new_table[f'avoir {lemma}'] = _new_table
+            lemmas_done.append(f'avoir {lemma}')
+            count_two_aux_verb += 1
+
+        else:
+            _new_table = create_new_table(responses, table[lemma], aux_dic=features[lemma_leff], ptcp_pst_table=_pp)
+            new_table[lemma] = _new_table
+            lemmas_done.append(lemma)
         if VERBOSE:
-            print(f"{i} {lemma} done")
+            print(f"{i} {lemma} done ({count_two_aux_verb} two aux verbs)")
     write_data(lemmas_done, new_table, os.path.join('mighty_morph', f'{language}-w_leff-TEST.txt'))
     print(f"Skipped {skipping} : {len(lemmas_done)-len(skipping)}/{len(lemmas_done)} lemma derived at the clause-level, {100-len(skipping)/len(lemmas_done)*100:0.2f}% coverage rate ")
 
