@@ -60,6 +60,22 @@ def match_reflexif(leff_data_lemma_field):
     # after deduplicating the lefff and "(se)" changed to "se" this means that we do not want to assign to reflexif (se)Lemma lines so only matching se and s'
     return "se Lemma" in leff_data_lemma_field or "s'Lemma" in leff_data_lemma_field
 
+def match_on(leff_data):
+    # after deduplicating the lefff and "(se)" changed to "se" this means that we do not want to assign to reflexif (se)Lemma lines so only matching se and s'
+    return re.match("<.*Obl:\(?[^,>]*\|?:sur-\|?[^,>]*\)?.*>", leff_data) is not None
+
+def match_sub(leff_data):
+    # after deduplicating the lefff and "(se)" changed to "se" this means that we do not want to assign to reflexif (se)Lemma lines so only matching se and s'
+    return re.match("<.*Obl:\(?[^,>]*\|?:sous-\|?[^,>]*\)?.*>", leff_data) is not None
+
+def match_contr(leff_data):
+    # after deduplicating the lefff and "(se)" changed to "se" this means that we do not want to assign to reflexif (se)Lemma lines so only matching se and s'
+    return re.match("<.*Obl:\(?[^,>]*\|?:contre-\|?[^,>]*\)?.*>", leff_data) is not None
+
+def match_pour(leff_data):
+    # after deduplicating the lefff and "(se)" changed to "se" this means that we do not want to assign to reflexif (se)Lemma lines so only matching se and s'
+    return re.match("<.*Obl:\(?[^,>]*\|?:pour-\|?[^,>]*\)?.*>", leff_data) is not None
+
 
 def extract_features_from_leff(lex_dir: Path, output_dir:str =None):
     with open(str(lex_dir), encoding="utf-8") as lex:
