@@ -23,7 +23,7 @@ loc_pron = {'3;SG;NEUT': 'y'}  # --> '3;PL;MASC':'leur', '3;PL;FEM':'leur'}
 
 gen_pron = {'3;SG;NEUT': 'en'}
 
-prepos_prons = {'a': acc_prons, 'd': dat_prons, 'l': loc_pron, "g": gen_pron, "r": reflex_prons}
+prepos_prons = {'a': acc_prons, 'd': dat_prons, 'l': loc_pron, "g": gen_pron, "r": reflex_prons, "0": {"None": ""}}
 
 # OTHER ONES: https://pollylingu.al/fr/en/cases : DISJUNCTIF? GENITIF?
 
@@ -159,15 +159,16 @@ def append_declarative_sent(new_table, full_feature, form, subject, case, seed_f
 
 
     # forms
-
     if aux is None:
         pron, subject = phonological_constrain_pronons(pron=pron, form=form, type=case, subject=subject)
     else:
         pron, subject = phonological_constrain_pronons(pron=pron, form=aux, type=case, subject=subject)
     if pron.strip() in ["en", "y"] and subject.strip() == "je":
         subject = "j'"
+
     new_table[full_feature] = f"{seed_full_form}{subject}{pron}{aux+' ' if aux is not None else ''}{form}."
-    
+
+
 def append_question(new_table, _pron_feat, full_feature, form, subject, case, seed_full_form, pron=None, aux=None):
 
 
@@ -512,6 +513,18 @@ def only_impersonel_verb(responses):
     return True
 
 
+POS_INDEX_TO_CODE_ARG = ["a", "d", "l", "g", "o1", "o1"]
+
+
+def get_arg_dic_ls(_response, index_response) -> list[dict]:
+    if _response[index_response].startswith("(") and _response[0].endswith(")"):
+        assert _response[index_response][1] == POS_INDEX_TO_CODE_ARG[index_response]
+        arg_dic_ls = [prepos_prons[_response[index_response][1]], prepos_prons['0']]
+    else:
+        assert len(_response[0]) == 1 and _response[index_response][1] == POS_INDEX_TO_CODE_ARG[index_response]
+        arg_dic_ls = [prepos_prons[_response[index_response][1]]]
+    return arg_dic_ls
+
 
 def get_order_pronon(_pron_0, _pron_1):
     # TODO
@@ -549,6 +562,8 @@ def create_new_table(responses, table, aux_dic, ptcp_pst_table):
                     continue
                 for pn in person_number:
                     #
+
+                    ## UNIMORPH MATCH
                     pers = ";".join(pn.split(";")[:2])
                     unimorph_match = f"V;{mood};{tense};{pers}"
 
@@ -589,6 +604,9 @@ def create_new_table(responses, table, aux_dic, ptcp_pst_table):
                         print(f"Warning: form {nfin} : 'V.PTCP;PST' not found in unimorph so skipping it {e}")
                         continue
 
+                    ## END UNIMORPH MATCH
+
+                    ## TENSE NAME
                     if tense == "PST":
                         if aspect == "PFV":
                             tense_feature = f'{tense}:LGSPEC1'
@@ -601,6 +619,7 @@ def create_new_table(responses, table, aux_dic, ptcp_pst_table):
                         impersonel_verb = _response[0] == "I"
                         original_feat = _response
 
+                        #SKIP pn != il for impersonel
                         if impersonel_verb:
                             if pn != "3;SG;MASC":
                                 continue
@@ -611,11 +630,53 @@ def create_new_table(responses, table, aux_dic, ptcp_pst_table):
                         _response = _response[1:]
 
                         for i, aux in enumerate(aux_dic[original_feat]):
+                            # suppose you have (a)d(l)(g)(obl1)(obl2)
+                            # (a),d,(l),(g),(obl1),(obl2) -->
+
+                            # ad , dl a , ao1o2, 0  --> and + obl
+
+                            # cannot generate adlg --> l and g are marked in the same one
+
+                            acc_dic_ls = get_arg_dic_ls(_response, index_response=0)
+                            for acc_dic in acc_dic_ls:
+                                for _pron_feat_acc, _pron_acc in acc_dic.items():
+
+                                    dat_dic_ls = get_arg_dic_ls(_response, index_response=1)
+                                    for dat_dic in dat_dic_ls:
+                                        for _pron_feat_dat, _pron_dat in dat_dic.items():
+
+                                            loc_dic_ls = get_arg_dic_ls(_response, index_response=2)
+                                            for loc_dic in loc_dic_ls:
+                                                for _pron_feat_loc, _pron_loc in loc_dic.items():
+
+                                                    gen_dic_ls = get_arg_dic_ls(_response, index_response=3)
+                                                    for gen_dic in gen_dic_ls:
+                                                        for _pron_feat_gen, _pron_gen in loc_dic.items():
+
+                                                            pass
+
+                                                            full_feature = f"{mood};{tense_feature};NOM({pn});"
+
+                                                            append_4_types_of_sentences(new_table, _pron_feat=None,
+                                                                                        seed_full_feature=full_feature,
+                                                                                        seed_full_form=seed_full_form,
+                                                                                        case=_response,
+                                                                                        subject=nom_prons[pn],
+                                                                                        form=form, pron=None, aux=None)
+
+                                                            # GENERATE: for all should handle NONE and not NONE
+                                                            # then make sure order is right
+                                                            # if feature 0 --> _pron_feat_acc is None and _pron_acc is ''
+                                                            #--> move to next one
+                                                            # if feature a --> need to generate it
+
+
+
+                            # ar
 
                             if _response not in ["a", "d", "l", "g", "0", "r", "ad",
                                                  "al", "ag", "dg", "lr", "gr", "ar", "dr"]:
                                 print("Skipping ", _response)
-                                breakpoint()
                                 raise("Not supported")
 
                                 #raise(Exception(f"{_response} not supported "))
@@ -638,7 +699,6 @@ def create_new_table(responses, table, aux_dic, ptcp_pst_table):
                                     # SIMPLE
 
                                     full_feature = f"{mood};{tense_feature};NOM({pn});"
-
 
                                     append_4_types_of_sentences(new_table, _pron_feat=None,
                                                                 seed_full_feature=full_feature,
@@ -723,19 +783,18 @@ def create_new_table(responses, table, aux_dic, ptcp_pst_table):
                             elif len(_response) == 2:
                                 for _pron_feat_0, _pron_0 in prepos_prons[_response[0]].items():
                                     for _pron_feat_1, _pron_1 in prepos_prons[_response[1]].items():
-                                
+
                                         # accordé ptcp_pst
                                         # if r is here it will always be in first position
                                         if _response == "ad":
-                                            if _pron_feat_0[0] in ['1', '2'] and \
-                                                    ";".join(_pron_feat_0.split(";")[:1]) == ";".join(_pron_feat_1.split(";")[:1]):
+                                            if _pron_feat_0[0] in ['1', '2'] and ";".join(_pron_feat_0.split(";")[:1]) == ";".join(_pron_feat_1.split(";")[:1]):
                                                 # skipping me me, te te..., me nous, nous me...
                                                 continue
                                         # r should always be second
                                         if _response[1] == "r" and ";".join(_pron_feat_1.split(";")[:2]) != ";".join(pn.split(";")[:2]):
                                             # in reflexive cases: only "je me..., tu te... "
                                             continue
-                                        
+
                                         if _response[1] != "r":
                                             seed_full_feature = f"{mood};{tense_feature};NOM({pn});"
                                         else:
@@ -895,7 +954,7 @@ def create_new_table(responses, table, aux_dic, ptcp_pst_table):
                                                         print(f"{nfin}\t{full_form}\t{full_feature}")
                             elif len(_response) == 1 and _response != "0":
                                 for _pron_feat, _pron in prepos_prons[_response].items():
-    
+
                                     # accordé ptcp_pst
                                     if _response[0] == "r" and ";".join(_pron_feat.split(";")[:2]) != ";".join(pn.split(";")[:2]):
                                         # in reflexive cases: only "je me..., tu te... "
@@ -935,7 +994,7 @@ def create_new_table(responses, table, aux_dic, ptcp_pst_table):
 
                                         if VERBOSE:
                                             print(f"{nfin}\t{full_form}\t{full_feature}")
-    
+
                                     ptcp_pst_ls, pn_ls, pn_feat_argument_ls = get_ptcp_pst_pn_expansion(_response, aux, table, ptcp_pst_table, _pron_feat, pn)
 
                                     for pn_feat_subject, pn_feat_arg, ptcp_pst in zip(pn_ls, pn_feat_argument_ls, ptcp_pst_ls):
@@ -1089,7 +1148,7 @@ if __name__ == '__main__':
 
     new_table = {}
     # get unimorph
-    table = read_unimorph("unimorph") # 19938 uniq lemma in unimporh in French 
+    table = read_unimorph("unimorph") # 19938 uniq lemma in unimporh in French
     # get order
     sorted_lemmas = freq_sort("fasttext")
 
@@ -1100,8 +1159,7 @@ if __name__ == '__main__':
 
 
     # load leff properties and PP derivation table
-    #with open("/Users/bemuller/Documents/Work/INRIA/dev/mighty_morph_tagging_tool/leff-extract/cases.json") as read:
-    with open("/Users/bemuller/Documents/Work/INRIA/dev/mighty_morph_tagging_tool/leff-extract/cases-new-new.json") as read:
+    with open("/Users/bemuller/Documents/Work/INRIA/dev/mighty_morph_tagging_tool/leff-extract/cases.json") as read:
         features = json.load(read)
 
     #for v in features:
