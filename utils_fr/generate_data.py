@@ -1205,7 +1205,7 @@ if __name__ == '__main__':
     lemmas_to_do = sorted(lemmas_to_do, key=lambda lemma: sorted_lemmas.index(lemma))
 
     lemmas_to_do = ["bidonner", "partager", "donner"]+lemmas_to_do#, "ressembler", "restaurer", "reprocher", "insurger"]#+lemmas_to_do
-    #breakpoint()
+    
 
 
     # load leff properties and PP derivation table

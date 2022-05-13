@@ -154,12 +154,16 @@ def extract_features_from_leff(lex_dir: Path, output_dir:str =None):
             if len(lex_line) <= 1:
                 continue
             feature_lex_line = lex_line[2].split(";")
+
+
+
             try:
                 assert feature_lex_line[3].startswith("<") and feature_lex_line[3].endswith(">"), f"{lex_line[2]} and {feature_lex_line[3]}"
             except:
                 print("Skipping cause did not found <..>", lex_line)
                 skipping += 1
                 skipping_no_bracket += 1
+
                 continue
 
             # verb
@@ -194,7 +198,7 @@ def extract_features_from_leff(lex_dir: Path, output_dir:str =None):
                 CODE = f"{PREFIX}"
 
                 # intransitif feature
-                if match_intransitif(feature_lex_line[3]):
+                if False and match_intransitif(feature_lex_line[3]):
                     CODE += "0"
                     if CODE not in lex_alexina_2[lex_line[0]]:
                         lex_alexina_2[lex_line[0]][CODE] = []
@@ -214,8 +218,8 @@ def extract_features_from_leff(lex_dir: Path, output_dir:str =None):
                     comb_to_make.append(match_func(feature_lex_line[3]))
                 # for reflexive only mandatory or not used
                 comb_to_make.append(["r"] if match_reflexif(feature_lex_line[1]) else ["0"])
-                if match_reflexif(feature_lex_line[1]):
-                    breakpoint()
+                #if match_reflexif(feature_lex_line[1]):
+                #    breakpoint()
 
 
 
@@ -247,11 +251,17 @@ def extract_features_from_leff(lex_dir: Path, output_dir:str =None):
                         raise(Exception(e))
 
                 # comb_to_make = [['a', '0'], ["d", "0"], ["g"], []]
+
+
+
                 mandatory_ls = []
                 for ipos, case in enumerate(comb_to_make):
                     if len(case) == 1 and case[0] != '0':
                         # mandatory
+                        if lex_line[0] == "bidonner":
+                            print("-------------", case)
                         mandatory_ls.append(case[0])
+
                 if objà_has_two_value:
                     print(f"\n\nOriginal combinations {comb_to_make}, {objà_has_two_value} objà_has_two_value")
 
@@ -337,8 +347,8 @@ def extract_features_from_leff(lex_dir: Path, output_dir:str =None):
                 ##if match_reflexif(feature_lex_line[1]):
                 #    print(comb_to_make, lex_line)
                 #    breakpoint()
-
-                #breakpoint()
+                if lex_line[0] == "bidonner":
+                    breakpoint()
 
 
 
