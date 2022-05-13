@@ -317,13 +317,13 @@ def append_question_negation_sent_bi_pron(new_table, full_feature, form, subject
         new_table[full_feature] = f"{seed_full_form}{get_ne(pron=_pron_feat_0,type=case, form=form)}{pronon_pairs}{aux}{get_question_phonological_link( before_subject=aux, subject=subject, case=case)}{subject} pas {form}{tonique_1} ?"
 
 
-def get_full_feature_bi_pronon_case(seed_full_feature, case, _pron_feat_0, _pron_feat_1):
+def get_full_feature_bi_pronon_case(seed_full_feature, case, _pron_feat_0, _pron_feat_1, pn):
 
     if case[1] != "r":
         return seed_full_feature + f"{cases[case[0]]}({_pron_feat_0});" + f"{cases[case[1]]}({_pron_feat_1});"
     elif case[0] in ["a", "d"] and case[1] == "r":
         # we check the alignement of pronoun this way because acc and dat have the same granularity level
-        RFLX = ";RFLX" if _pron_feat_0 == _pron_feat_1 else ""
+        RFLX = ";RFLX" if pn == _pron_feat_1 and pn.startswith("3") else ""
         return seed_full_feature + f"{cases[case[0]]}({_pron_feat_0}{RFLX});"
     else:
         # the RFLX has been taken care of inside the NOM group
@@ -459,7 +459,8 @@ def two_pronouns_order_and_phonological_constrains(form, _pron_feat_0=None, _pro
         return first+" "+second+" ", tonique_1
     else:
         assert pron_1 is not None
-
+        if type in ["dr", "ar"]:
+            breakpoint()
         if type in ["al", "ag"]:#, "lr", "gr"]:
 
             if pron_0 in ["toi", "moi"] and pron_1 in ["en", "y"]:
@@ -480,6 +481,7 @@ def two_pronouns_order_and_phonological_constrains(form, _pron_feat_0=None, _pro
             if re.match(".*[aeiou]$", pron_0) and re.match("^[aeiouyhéêh].*", pron_1) and pron_0 not in ["lui"]:
                 return pron_0[:-1] + "'" + pron_1 + " ", tonique_1
             return pron_0 + " " + pron_1 + " ", tonique_1
+
         else:
             return pron_0 + " " + pron_1 + " ", tonique_1
 
@@ -819,7 +821,7 @@ def create_new_table(responses, table, aux_dic, ptcp_pst_table):
                                             _pron_imperatif, tonique_1 = two_pronouns_order_and_phonological_constrains(_pron_feat_0=_pron_feat_0, _pron_feat_1=_pron_feat_1, pron_0=_pron_imperatif_0, pron_1=_pron_imperatif_1, form=form, type=_response, mood=mood)
 
                                             full_form = seed_full_form + f"{form}-{_pron_imperatif}{tonique_1}!"
-                                            full_feature = get_full_feature_bi_pronon_case(seed_full_feature, _response, _pron_feat_0, _pron_feat_1)
+                                            full_feature = get_full_feature_bi_pronon_case(seed_full_feature, _response, _pron_feat_0, _pron_feat_1, pn)
                                             #full_feature = seed_full_feature + f"{cases[_response[0]]}({_pron_feat_0});" + f"{cases[_response[1]]}({_pron_feat_1});"
                                             new_table[full_feature] = full_form
 

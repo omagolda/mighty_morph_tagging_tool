@@ -19,6 +19,9 @@ dat_prons = {'1;SG': 'me', '1;PL': 'nous', '2;SG': 'te', '2;PL': 'vous', '3;SG;M
 
 reflex_prons = {'1;SG': 'me', '1;PL': 'nous', '2;SG': 'te', '2;PL': 'vous', '3;SG': 'se', '3;PL': 'se'}# '3;PL;MASC':'leur', '3;PL;FEM':'leur'}
 
+
+tonique_pronouns_from_pn = {"je": "moi", "tu": "toi", "il": "se", "elle": "se", "nous": "nous", "vous": "vous", "ils": "se", "elles": "se"}
+
 loc_pron = {'3;SG;NEUT': 'y'}  # --> '3;PL;MASC':'leur', '3;PL;FEM':'leur'}
 
 gen_pron = {'3;SG;NEUT': 'en'}
@@ -31,6 +34,9 @@ prepos_prons = {'a': acc_prons, 'd': dat_prons, 'l': loc_pron, "g": gen_pron, "r
 # tonique https://parlez-vous-french.com/les-pronoms-toniques-en-francais/
 tonique_pronouns = {'1;SG': 'moi', '1;PL':'nous', '2;SG': 'toi', '2;PL': 'vous', '3;SG;MASC': 'lui',
                     '3;SG;FEM': 'elle', '3;PL': 'eux'} #'3;PL;MASC': 'eux', '3;PL;FEM':'elles'}
+
+
+tonique_pronouns_for_obl = {'1;SG': 'moi', '1;PL': 'nous', '2;SG': 'toi', '2;PL': 'vous', '3;SG;MASC': 'lui', '3;SG;FEM': 'elle', '3;PL': 'eux', "3;SG;NEUT": "cela"} #'3;PL;MASC': 'eux', '3;PL;FEM':'elles'}
 
 
 prepos = {'a': '', 'd': 'à', 'c': 'avec', 'g': 'of', 'b': 'from', 'f': 'for', 'l': 'on', 's': 'at', 't': 'about', 'i': 'in'}
@@ -247,7 +253,7 @@ def append_declarative_sent_bi_pron(new_table, full_feature, form, subject, case
                                                                            _pron_feat_1=_pron_feat_1,
                                                                            pron_0=pron_0,
                                                                            pron_1=pron_1, form=aux if aux is not None else form,
-                                                                           type=case)
+                                                                           type=case, sub_pn=subject)
     #if form == "trouvais" and case == "gr" and aux is None:
         #breakpoint()
     if aux is None:
@@ -269,7 +275,7 @@ def append_question_sent_bi_pron(new_table, full_feature, form, subject, case, s
                                                                              _pron_feat_0=_pron_feat_0,
                                                                              _pron_feat_1=_pron_feat_1,
                                                                              form=aux if aux is not None else form,
-                                                                             type=case)
+                                                                             type=case, sub_pn=subject)
     if aux is None:
         new_table[full_feature] = f"{seed_full_form}{pronon_pairs}{form}{get_question_phonological_link(before_subject=form, subject=subject, case=case)}{subject}{tonique_1} ?"
     else:
@@ -288,7 +294,7 @@ def append_neg_sent_bi_pron(new_table, full_feature, form, subject, case, seed_f
                                                                              _pron_feat_0=_pron_feat_0,
                                                                              _pron_feat_1=_pron_feat_1,
                                                                              form=aux if aux is not None else form,
-                                                                             type=case)
+                                                                             type=case, sub_pn=subject)
     if aux is None:
         # NB: here get_ne has not impact for now, just generates 'ne' all the time
         new_table[full_feature] = f"{seed_full_form}{subject} {get_ne(pron=_pron_feat_0,type=case, form=form)}{pronon_pairs}{form} pas{tonique_1}."
@@ -308,7 +314,7 @@ def append_question_negation_sent_bi_pron(new_table, full_feature, form, subject
                                                                   _pron_feat_0=_pron_feat_0,
                                                                   _pron_feat_1=_pron_feat_1,
                                                                   form=aux if aux is not None else form,
-                                                                  type=case)
+                                                                  type=case, sub_pn=subject)
 
     if aux is None:
         new_table[full_feature] = f"{seed_full_form}{get_ne(pron=_pron_feat_0,type=case, form=form)}{pronon_pairs}{form}{get_question_phonological_link(before_subject=form, subject=subject, case=case)}{subject} pas{tonique_1} ?"
@@ -322,11 +328,15 @@ def get_full_feature_bi_pronon_case(seed_full_feature, case, _pron_feat_0, _pron
         return seed_full_feature + f"{cases[case[0]]}({_pron_feat_0});" + f"{cases[case[1]]}({_pron_feat_1});"
     elif case[0] in ["a", "d"] and case[1] == "r":
         # we check the alignement of pronoun this way because acc and dat have the same granularity level
-        RFLX = ";RFLX" if _pron_feat_0 == _pron_feat_1 else ""
-        return seed_full_feature + f"{cases[case[0]]}({_pron_feat_0}{RFLX});"
+        RFLX = ";RFLX" #if _pron_feat_1.startswith("3") else ""
+        # the se of se lemma becomes the other case available
+        CASE = "ACC" if case[0] == "d" else "DAT"
+        return seed_full_feature + f"{cases[case[0]]}({_pron_feat_0});" + f"{CASE}({_pron_feat_1}{RFLX});"
     else:
-        # the RFLX has been taken care of inside the NOM group
-        return seed_full_feature + f"{cases[case[0]]}({_pron_feat_0});"
+        assert case[0] in ["g", "l"]
+        RFLX = ";RFLX" #if _pron_feat_0 == _pron_feat_1 else ""
+        # in this case it is a ACC
+        return seed_full_feature + f"{cases[case[0]]}({_pron_feat_0});"+ f"ACC({_pron_feat_1}{RFLX});"
 
 
 def get_full_feature_single_pronon_case(seed_full_feature, case, _pron_feat, pron):
@@ -427,10 +437,10 @@ def phonological_constrain_pronons(form, pron=None, subject=None, type="a"):
         raise(f"Type case not supported {type}")
 
 
-def two_pronouns_order_and_phonological_constrains(form, _pron_feat_0=None, _pron_feat_1=None, pron_0=None, pron_1=None, type="ad", mood=None):
+def two_pronouns_order_and_phonological_constrains(form, _pron_feat_0=None, _pron_feat_1=None, pron_0=None, pron_1=None, type="ad", mood=None, sub_pn=None):
     tonique_1 = ""
 
-    if type == "ad":
+    if type in ["ad"]:
         # pron_1 is datif
         # pron_0 is accusatif
         if _pron_feat_0 is None:
@@ -456,6 +466,69 @@ def two_pronouns_order_and_phonological_constrains(form, _pron_feat_0=None, _pro
             if re.match(".*[aeiou]$", second) and re.match("^[aeiouyhéêh].*", form):
                 return first+" "+second[:-1]+"'", tonique_1
         return first+" "+second+" ", tonique_1
+
+    if type in ["dr"]:
+        # pron_1 is datif
+        # pron_0 is accusatif
+        #if _pron_feat_1[0] in ['1', '2']:
+            # here we want to add à moi/toi/eux... tonique pronouns
+        tonique_0 = ' à ' + tonique_pronouns[_pron_feat_0]
+
+        if re.match(".*[aeiou]$", pron_0) and re.match("^[aeiouyhéêh].*", form):
+            return pron_1[:-1] + "'", tonique_0
+        else:
+            return pron_1+" ", tonique_0
+
+        #first = pron_0
+        #second = pron_1
+
+        #if pron_1 in ["me", "te", "nous", "vous"] and pron_0 in ["les", "le", "la"]:
+        #    #first = "I-"+pron_1
+        #    first =  pron_1
+        #    #second = "D-"+pron_0
+        #    second = pron_0
+
+        #    if re.match(".*[aeiou]$", second) and re.match("^[aeiouyhéêh].*", form):
+        #        return first+" "+second[:-1]+"'", tonique_1
+        #return first+" "+second+" ", tonique_1
+
+    elif type in ["ar"]:
+        raise(Exception("not supported"))
+        # pron_1 is datif
+        # pron_0 is accusatif
+        #?? TODO: if _pron_feat_0[0] in ['1', '2'] and sub_pn in ["il", "elle"]:
+        if False:
+            if _pron_feat_0[0] in ['1', '2']:
+                # DO NOT GENERATE if
+                #pass
+                #if _pron_feat_0[0] in ['1', '2']:
+                # here we want to add à moi/toi/eux... tonique pronouns
+                tonique_1 = ' à ' + tonique_pronouns_from_pn[sub_pn]
+                if re.match(".*[aeiou]$", pron_0) and re.match("^[aeiouyhéêh].*", form):
+                    return pron_0[:-1] + "'", tonique_1
+                else:
+                    return pron_0+" ", tonique_1
+
+            first = pron_0
+            second = pron_1
+
+            if pron_1 in ["me", "te", "nous", "vous"] and pron_0 in ["les", "le", "la"]:
+                # first = "I-"+pron_1
+                first = pron_1
+                # second = "D-"+pron_0
+                second = pron_0
+
+                if re.match(".*[aeiou]$", second) and re.match("^[aeiouyhéêh].*", form):
+                    return first + " " + second[:-1] + "'", tonique_1
+
+            if re.match(".*[aeiou]$", pron_0) and re.match("^[aeiouyhéêh].*", form):
+                return pron_0[:-1] + "'", tonique_1
+            else:
+                return pron_0+" ", tonique_1
+        #return first + " " + second + " ", tonique_1
+        return pron_0 + " " + pron_1 + " ", tonique_1
+
+
     else:
         assert pron_1 is not None
 
@@ -479,6 +552,8 @@ def two_pronouns_order_and_phonological_constrains(form, _pron_feat_0=None, _pro
             if re.match(".*[aeiou]$", pron_0) and re.match("^[aeiouyhéêh].*", pron_1) and pron_0 not in ["lui"]:
                 return pron_0[:-1] + "'" + pron_1 + " ", tonique_1
             return pron_0 + " " + pron_1 + " ", tonique_1
+        #elif type in ["ar", "dr"]:
+        #   pass#breakpoint()
         else:
             return pron_0 + " " + pron_1 + " ", tonique_1
 
@@ -610,6 +685,8 @@ def create_new_table(responses, table, aux_dic, ptcp_pst_table):
 
                         _response = _response[1:]
 
+                        # SPLIT RESPONSE SECOND HALF
+
                         for i, aux in enumerate(aux_dic[original_feat]):
 
                             if _response not in ["a", "d", "l", "g", "0", "r", "ad",
@@ -617,8 +694,19 @@ def create_new_table(responses, table, aux_dic, ptcp_pst_table):
                                 print("Skipping ", _response)
                                 breakpoint()
                                 raise("Not supported")
+                            if _response == "ar":
+                                print("SKIPPING ", _response)
+                                continue
 
                                 #raise(Exception(f"{_response} not supported "))
+
+                            # TODO OBLIQUE:
+                            # - brute force technique:
+                            # - copy paste this code x2 :
+                            #   -1 if oblique_response.len == 1
+                            #   -2 if oblique_response.len == 2
+                            #   -0 : if oblique.len == 0
+                            # for each case: append full_feature + add obl, obl2 (feed to generated function): could factorize perhpas in one big function
 
                             # INTRANSITIF VERBS
                             if _response == "0":
@@ -638,7 +726,6 @@ def create_new_table(responses, table, aux_dic, ptcp_pst_table):
                                     # SIMPLE
 
                                     full_feature = f"{mood};{tense_feature};NOM({pn});"
-
 
                                     append_4_types_of_sentences(new_table, _pron_feat=None,
                                                                 seed_full_feature=full_feature,
@@ -725,8 +812,9 @@ def create_new_table(responses, table, aux_dic, ptcp_pst_table):
                                     for _pron_feat_1, _pron_1 in prepos_prons[_response[1]].items():
                                 
                                         # accordé ptcp_pst
+
                                         # if r is here it will always be in first position
-                                        if _response == "ad":
+                                        if _response in ["ar", "dr", "ad"]:
                                             if _pron_feat_0[0] in ['1', '2'] and \
                                                     ";".join(_pron_feat_0.split(";")[:1]) == ";".join(_pron_feat_1.split(";")[:1]):
                                                 # skipping me me, te te..., me nous, nous me...
@@ -735,19 +823,23 @@ def create_new_table(responses, table, aux_dic, ptcp_pst_table):
                                         if _response[1] == "r" and ";".join(_pron_feat_1.split(";")[:2]) != ";".join(pn.split(";")[:2]):
                                             # in reflexive cases: only "je me..., tu te... "
                                             continue
-                                        
-                                        if _response[1] != "r":
-                                            seed_full_feature = f"{mood};{tense_feature};NOM({pn});"
-                                        else:
-                                            if _response[0] in ["a", "d"]:
-                                                # in this case thr RFLX feature is taken care of in the ACC/DAT
-                                                seed_full_feature = f"{mood};{tense_feature};NOM({pn});"
-                                            elif  ";".join(_pron_feat_1.split(";")[:2]) != ";".join(pn.split(";")[:2]):
-                                                # pronouns not aligned so not reflexif
-                                                seed_full_feature = f"{mood};{tense_feature};NOM({pn});"
-                                            else:
-                                                # reflexif
-                                                seed_full_feature = f"{mood};{tense_feature};NOM({pn};RFLX);"
+                                        if _response[1] != "r" and (";".join(_pron_feat_1.split(";")[:2]) == ";".join(pn.split(";")[:2]) or ";".join(_pron_feat_0.split(";")[:2]) == ";".join(pn.split(";")[:2]) ):
+                                            # in reflexive cases: only "je me..., tu te... "
+                                            continue
+                                        #if _response[1] != "r":
+                                        #    seed_full_feature = f"{mood};{tense_feature};NOM({pn});"
+                                        #else:
+                                        #    seed_full_feature = f"{mood};{tense_feature};NOM({pn});"
+                                        seed_full_feature = f"{mood};{tense_feature};NOM({pn});"
+                                            #if _response[0] in ["a", "d"]:
+                                            #    # in this case thr RFLX feature is taken care of in the ACC/DAT
+                                            #    seed_full_feature = f"{mood};{tense_feature};NOM({pn});"
+                                            #elif ";".join(_pron_feat_1.split(";")[:2]) != ";".join(pn.split(";")[:2]):
+                                            #    # pronouns not aligned so not reflexif
+                                            #    seed_full_feature = f"{mood};{tense_feature};NOM({pn});"
+                                            #else:
+                                            #    # reflexif
+                                           #     seed_full_feature = f"{mood};{tense_feature};NOM({pn};RFLX);"
                                         seed_full_form = ""
 
                                         # SIMPLE TENSES
@@ -757,7 +849,7 @@ def create_new_table(responses, table, aux_dic, ptcp_pst_table):
                                             # IMPERATIF AFFIRMATIF
                                             _pron_imperatif_0 = imperatif_pronouns(_pron_0, type=_response[0])
                                             _pron_imperatif_1 = imperatif_pronouns(_pron_1, type=_response[1])
-                                            _pron_imperatif, tonique_1 = two_pronouns_order_and_phonological_constrains(_pron_feat_0=_pron_feat_0, _pron_feat_1=_pron_feat_1, pron_0=_pron_imperatif_0, pron_1=_pron_imperatif_1, form=form, type=_response, mood=mood)
+                                            _pron_imperatif, tonique_1 = two_pronouns_order_and_phonological_constrains(_pron_feat_0=_pron_feat_0, _pron_feat_1=_pron_feat_1, pron_0=_pron_imperatif_0, pron_1=_pron_imperatif_1, form=form, type=_response, mood=mood, sub_pn=nom_prons[pn])
 
                                             full_form = seed_full_form + f"{form}-{_pron_imperatif}{tonique_1}!"
                                             full_feature = get_full_feature_bi_pronon_case(seed_full_feature, _response, _pron_feat_0, _pron_feat_1)
@@ -768,7 +860,7 @@ def create_new_table(responses, table, aux_dic, ptcp_pst_table):
                                             full_feature += "NEG;"
 
                                             # For negation : no "moi" "toi"
-                                            _pron_imperatif, tonique_1 = two_pronouns_order_and_phonological_constrains(_pron_feat_0=_pron_feat_0, _pron_feat_1=_pron_feat_1, pron_0=_pron_0, pron_1=_pron_1, form=form,type=_response, mood=mood)
+                                            _pron_imperatif, tonique_1 = two_pronouns_order_and_phonological_constrains(_pron_feat_0=_pron_feat_0, _pron_feat_1=_pron_feat_1, pron_0=_pron_0, pron_1=_pron_1, form=form,type=_response, mood=mood, sub_pn=nom_prons[pn])
                                             full_form = seed_full_form + f"{get_ne(_pron_0, type=_response,form=form)}{_pron_imperatif} {form} pas{tonique_1} !"
                                             new_table[full_feature] = full_form
 
@@ -900,9 +992,22 @@ def create_new_table(responses, table, aux_dic, ptcp_pst_table):
                                     if _response[0] == "r" and ";".join(_pron_feat.split(";")[:2]) != ";".join(pn.split(";")[:2]):
                                         # in reflexive cases: only "je me..., tu te... "
                                         continue
+                                    if _response[0] != "r" and ";".join(_pron_feat.split(";")[:2]) == ";".join(pn.split(";")[:2]):
+                                        # if not reflexice cases: "je me..., tu te... nous nous, vous vous not allowed"
+                                        continue
+                                    #if
+                                    #RFLX = ";RFLX" if _response[0] == "r" else ""
 
-                                    RFLX = ";RFLX" if _response[0] == "r" else ""
-                                    seed_full_feature = f"{mood};{tense_feature};NOM({pn}{RFLX});"
+                                    if _response[0] == "r":
+                                        #if _pron_feat.startswith("3"):
+                                        rflx_mark = ";RFLX" # to be consistent with multiple response one
+                                        #else:
+                                        #    rflx_mark = ""
+                                        RFLX = f"ACC({_pron_feat}{rflx_mark});"
+                                    else:
+                                        RFLX = ""
+
+                                    seed_full_feature = f"{mood};{tense_feature};NOM({pn});{RFLX}"
                                     seed_full_form = ""
 
                                     if mood == "IMP":
@@ -952,7 +1057,7 @@ def create_new_table(responses, table, aux_dic, ptcp_pst_table):
                                                 # get FUT --> get future
                                                 aux_form = auxiliary_dict[aux]["IND;FUT"][pers]
                                                 #seed_full_feature = f"{AUX}IND;FUT;PFV;NOM({pn_feat_subject});"
-                                                seed_full_feature = f"IND;FUT;PFV;NOM({pn_feat_subject}{RFLX});"
+                                                seed_full_feature = f"IND;FUT;PFV;NOM({pn_feat_subject});{RFLX}"
                                                 #full_feature = seed_full_feature + f"{cases[_response]}({pn_feat_arg})"
 
                                                 append_4_types_of_sentences(new_table, _pron_feat=pn_feat_arg,
@@ -969,7 +1074,7 @@ def create_new_table(responses, table, aux_dic, ptcp_pst_table):
                                                 # present perfect / passé composé --> présent
                                                 aux_form = auxiliary_dict[aux]["IND;PRS"][pers]
                                                 #seed_full_feature = f"{AUX}IND;PST;NOM({pn_feat_subject});"
-                                                seed_full_feature = f"IND;PST;NOM({pn_feat_subject}{RFLX});"
+                                                seed_full_feature = f"IND;PST;NOM({pn_feat_subject});{RFLX}"
                                                 #full_feature = seed_full_feature + f"{cases[_response]}({_pron_feat})"
 
                                                 append_4_types_of_sentences(new_table, _pron_feat=pn_feat_arg,
@@ -985,7 +1090,7 @@ def create_new_table(responses, table, aux_dic, ptcp_pst_table):
                                                 # past-perfect / plus que parfait --> imparfait
                                                 aux_form = auxiliary_dict[aux]["IND;PST;IPFV"][pers]
                                                 #seed_full_feature = f"{AUX}IND;PST;PFV;NOM({pn_feat_subject});"
-                                                seed_full_feature = f"IND;PST;PFV;NOM({pn_feat_subject}{RFLX});"
+                                                seed_full_feature = f"IND;PST;PFV;NOM({pn_feat_subject});{RFLX}"
 
                                                 append_4_types_of_sentences(new_table, _pron_feat=pn_feat_arg,
                                                                             seed_full_feature=seed_full_feature,
@@ -1000,7 +1105,7 @@ def create_new_table(responses, table, aux_dic, ptcp_pst_table):
                                                 # passé antérieur --> passé simple
                                                 aux_form = auxiliary_dict[aux]["IND;PST;PFV;LGSPEC1"][pers]
                                                 #seed_full_feature = f"{AUX}IND;PST;PFV;LGSPEC1;NOM({pn_feat_subject});"
-                                                seed_full_feature = f"IND;PST;PFV;LGSPEC1;NOM({pn_feat_subject}{RFLX});"
+                                                seed_full_feature = f"IND;PST;PFV;LGSPEC1;NOM({pn_feat_subject});{RFLX}"
 
                                                 append_4_types_of_sentences(new_table, _pron_feat=pn_feat_arg,
                                                                             seed_full_feature=seed_full_feature,
@@ -1016,7 +1121,7 @@ def create_new_table(responses, table, aux_dic, ptcp_pst_table):
                                             if tense == "PST":
                                                 aux_form = auxiliary_dict[aux]["COND;PST"][pers]
                                                 #seed_full_feature = f"{AUX}COND;PFV;NOM({pn_feat_subject});"
-                                                seed_full_feature = f"COND;PFV;NOM({pn_feat_subject}{RFLX});"
+                                                seed_full_feature = f"COND;PFV;NOM({pn_feat_subject});{RFLX}"
 
                                                 append_4_types_of_sentences(new_table, _pron_feat=pn_feat_arg,
                                                                             seed_full_feature=seed_full_feature,
@@ -1089,14 +1194,18 @@ if __name__ == '__main__':
 
     new_table = {}
     # get unimorph
-    table = read_unimorph("unimorph") # 19938 uniq lemma in unimporh in French 
+    table = read_unimorph("unimorph") # 19938 uniq lemma in unimporh in French
     # get order
     sorted_lemmas = freq_sort("fasttext")
+
 
     # sort unimorph lemmas
     sorted_set = set(sorted_lemmas)
     lemmas_to_do = {lemma for lemma in table.keys() if lemma in sorted_set}
     lemmas_to_do = sorted(lemmas_to_do, key=lambda lemma: sorted_lemmas.index(lemma))
+
+    lemmas_to_do = ["bidonner", "partager", "donner"]+lemmas_to_do#, "ressembler", "restaurer", "reprocher", "insurger"]#+lemmas_to_do
+    #breakpoint()
 
 
     # load leff properties and PP derivation table
@@ -1203,7 +1312,7 @@ if __name__ == '__main__':
             lemmas_done.append(lemma)
         if VERBOSE:
             print(f"{i} {lemma} done ({count_two_aux_verb} two aux verbs)")
-    write_data(lemmas_done, new_table, os.path.join('mighty_morph', f'{language}-w_leff-TEST.txt'))
+    write_data(lemmas_done, new_table, os.path.join('mighty_morph', f'{language}-w_leff-TEST-four_examples.txt'))
     print(f"Skipped {skipping} : {len(lemmas_done)-len(skipping)}/{len(lemmas_done)} lemma derived at the clause-level, {100-len(skipping)/len(lemmas_done)*100:0.2f}% coverage rate ")
 
 

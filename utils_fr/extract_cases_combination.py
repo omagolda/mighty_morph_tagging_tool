@@ -214,6 +214,10 @@ def extract_features_from_leff(lex_dir: Path, output_dir:str =None):
                     comb_to_make.append(match_func(feature_lex_line[3]))
                 # for reflexive only mandatory or not used
                 comb_to_make.append(["r"] if match_reflexif(feature_lex_line[1]) else ["0"])
+                if match_reflexif(feature_lex_line[1]):
+                    breakpoint()
+
+
 
                 try:
                     assert len([e for ls in comb_to_make for e in ls]), comb_to_make
