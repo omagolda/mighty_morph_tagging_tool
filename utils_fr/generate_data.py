@@ -493,41 +493,23 @@ def two_pronouns_order_and_phonological_constrains(form, _pron_feat_0=None, _pro
         #return first+" "+second+" ", tonique_1
 
     elif type in ["ar"]:
-        raise(Exception("not supported"))
+        #raise(Exception("not supported"))
         # pron_1 is datif
         # pron_0 is accusatif
         #?? TODO: if _pron_feat_0[0] in ['1', '2'] and sub_pn in ["il", "elle"]:
-        if False:
-            if _pron_feat_0[0] in ['1', '2']:
-                # DO NOT GENERATE if
-                #pass
-                #if _pron_feat_0[0] in ['1', '2']:
-                # here we want to add à moi/toi/eux... tonique pronouns
-                tonique_1 = ' à ' + tonique_pronouns_from_pn[sub_pn]
-                if re.match(".*[aeiou]$", pron_0) and re.match("^[aeiouyhéêh].*", form):
-                    return pron_0[:-1] + "'", tonique_1
-                else:
-                    return pron_0+" ", tonique_1
 
-            first = pron_0
-            second = pron_1
+        first = pron_0
+        second = pron_1
 
-            if pron_1 in ["me", "te", "nous", "vous"] and pron_0 in ["les", "le", "la"]:
-                # first = "I-"+pron_1
-                first = pron_1
-                # second = "D-"+pron_0
-                second = pron_0
+        if pron_1 in ["me", "te", "nous", "vous", "se"] and pron_0 in ["les", "le", "la"]:
+            # first = "I-"+pron_1
+            first = pron_1
+            # second = "D-"+pron_0
+            second = pron_0
 
-                if re.match(".*[aeiou]$", second) and re.match("^[aeiouyhéêh].*", form):
-                    return first + " " + second[:-1] + "'", tonique_1
-
-            if re.match(".*[aeiou]$", pron_0) and re.match("^[aeiouyhéêh].*", form):
-                return pron_0[:-1] + "'", tonique_1
-            else:
-                return pron_0+" ", tonique_1
-        #return first + " " + second + " ", tonique_1
-        return pron_0 + " " + pron_1 + " ", tonique_1
-
+            if re.match(".*[aeiou]$", second) and re.match("^[aeiouyhéêh].*", form):
+                return first + " " + second[:-1] + "'", tonique_1
+        return first + " " + second + " ", tonique_1
 
     else:
         assert pron_1 is not None
@@ -694,9 +676,9 @@ def create_new_table(responses, table, aux_dic, ptcp_pst_table):
                                 print("Skipping ", _response)
                                 breakpoint()
                                 raise("Not supported")
-                            if _response == "ar":
-                                print("SKIPPING ", _response)
-                                continue
+                            #if _response == "ar":
+                                #print("SKIPPING ", _response)
+                                #continue
 
                                 #raise(Exception(f"{_response} not supported "))
 
@@ -825,6 +807,10 @@ def create_new_table(responses, table, aux_dic, ptcp_pst_table):
                                             continue
                                         if _response[1] != "r" and (";".join(_pron_feat_1.split(";")[:2]) == ";".join(pn.split(";")[:2]) or ";".join(_pron_feat_0.split(";")[:2]) == ";".join(pn.split(";")[:2]) ):
                                             # in reflexive cases: only "je me..., tu te... "
+                                            continue
+                                        if _response == "ar" and not (_pron_feat_0[0] == "3"):
+                                            #breakpoint()
+                                            # excluding
                                             continue
                                         #if _response[1] != "r":
                                         #    seed_full_feature = f"{mood};{tense_feature};NOM({pn});"
@@ -1205,7 +1191,7 @@ if __name__ == '__main__':
     lemmas_to_do = sorted(lemmas_to_do, key=lambda lemma: sorted_lemmas.index(lemma))
 
     lemmas_to_do = ["bidonner", "partager", "donner"]+lemmas_to_do#, "ressembler", "restaurer", "reprocher", "insurger"]#+lemmas_to_do
-    
+
 
 
     # load leff properties and PP derivation table
