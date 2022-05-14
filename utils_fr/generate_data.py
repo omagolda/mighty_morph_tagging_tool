@@ -666,6 +666,9 @@ def create_new_table(responses, table, aux_dic, ptcp_pst_table):
                         # skip if it is not "il"  and not IND
 
                         _response = _response[1:]
+                        oblique = _response.split("|")[1]
+                        _response = _response.split("|")[0]
+                        #breakpoint()
 
                         # SPLIT RESPONSE SECOND HALF
 
@@ -676,11 +679,7 @@ def create_new_table(responses, table, aux_dic, ptcp_pst_table):
                                 print("Skipping ", _response)
                                 breakpoint()
                                 raise("Not supported")
-                            #if _response == "ar":
-                                #print("SKIPPING ", _response)
-                                #continue
 
-                                #raise(Exception(f"{_response} not supported "))
 
                             # TODO OBLIQUE:
                             # - brute force technique:
@@ -691,7 +690,13 @@ def create_new_table(responses, table, aux_dic, ptcp_pst_table):
                             # for each case: append full_feature + add obl, obl2 (feed to generated function): could factorize perhpas in one big function
 
                             # INTRANSITIF VERBS
+
+
+
                             if _response == "0":
+
+                                def generate_no_argument_clause(mood, tense_feature, form, pn, _response, aux):
+
                                 seed_full_form = ""
                                 if mood == "IMP":
                                     full_form = seed_full_form + f"{form} !"
@@ -1196,7 +1201,8 @@ if __name__ == '__main__':
 
     # load leff properties and PP derivation table
     #with open("/Users/bemuller/Documents/Work/INRIA/dev/mighty_morph_tagging_tool/leff-extract/cases.json") as read:
-    with open("/Users/bemuller/Documents/Work/INRIA/dev/mighty_morph_tagging_tool/leff-extract/cases-new-new.json") as read:
+    #with open("/Users/bemuller/Documents/Work/INRIA/dev/mighty_morph_tagging_tool/leff-extract/cases-new-new.json") as read:
+    with open("/Users/bemuller/Documents/Work/INRIA/dev/mighty_morph_tagging_tool/leff-extract/cases-w-oblique.json") as read:
         features = json.load(read)
 
     #for v in features:

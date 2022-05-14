@@ -117,30 +117,40 @@ def match_reflexif(leff_data_lemma_field):
     # after deduplicating the lefff and "(se)" changed to "se" this means that we do not want to assign to reflexif (se)Lemma lines so only matching se and s'
     return "se Lemma" in leff_data_lemma_field or "s'Lemma" in leff_data_lemma_field
 
-def match_on(leff_data):
-    # after deduplicating the lefff and "(se)" changed to "se" this means that we do not want to assign to reflexif (se)Lemma lines so only matching se and s'
-    return re.match("<.*Obl:\(?[^,>]*\|?:sur-sn\|?[^,>]*\)?.*>", leff_data) is not None
 
-def match_sub(leff_data):
-    # after deduplicating the lefff and "(se)" changed to "se" this means that we do not want to assign to reflexif (se)Lemma lines so only matching se and s'
-    return re.match("<.*Obl:\(?[^,>]*\|?:sous-sn\|?[^,>]*\)?.*>", leff_data) is not None
 
-def match_contr(leff_data):
-    # after deduplicating the lefff and "(se)" changed to "se" this means that we do not want to assign to reflexif (se)Lemma lines so only matching se and s'
-    return re.match("<.*Obl:\(?[^,>]*\|?:contre-sn\|?[^,>]*\)?.*>", leff_data) is not None
+def match_oblique(leff_data, prep, field="Obl"):
+    return re.match("<.*"+field+":\(?[^,>]*\|?"+prep+"-sn\|?[^,>]*\)?.*>", leff_data) is not None, re.match("<.*"+field+":[^,>\(]*\|?"+prep+"-sn\|?[^,>)]*.*>", leff_data) is not None
 
-def match_pour(leff_data):
-    # after deduplicating the lefff and "(se)" changed to "se" this means that we do not want to assign to reflexif (se)Lemma lines so only matching se and s'
-    return re.match("<.*Obl:\(?[^,>]*\|?:pour-sn\|?[^,>]*\)?.*>", leff_data) is not None
 
-def match_par(leff_data):
+def match_on(leff_data, field="Obl"):
     # after deduplicating the lefff and "(se)" changed to "se" this means that we do not want to assign to reflexif (se)Lemma lines so only matching se and s'
-    return re.match("<.*Obl:\(?[^,>]*\|?:par-sn\|?[^,>]*\)?.*>", leff_data) is not None
+    return re.match("<.*"+field+":\(?[^,>]*\|?:sur-sn\|?[^,>]*\)?.*>", leff_data) is not None, re.match("<.*"+field+":[^,>\(]*\|?:sur-sn\|?[^,>)]*.*>", leff_data) is not None
 
-def match_with(leff_data):
+def match_sub(leff_data, field="Obl"):
     # after deduplicating the lefff and "(se)" changed to "se" this means that we do not want to assign to reflexif (se)Lemma lines so only matching se and s'
-    return re.match("<.*Obl:\(?[^,>]*\|?:with-sn\|?[^,>]*\)?.*>", leff_data) is not None
+    return re.match("<.*"+field+":\(?[^,>]*\|?:sous-sn\|?[^,>]*\)?.*>", leff_data) is not None, re.match("<.*"+field+":[^,>\(]*\|?:sous-sn\|?[^,>)]*.*>", leff_data) is not None
 
+def match_contr(leff_data, field="Obl"):
+    # after deduplicating the lefff and "(se)" changed to "se" this means that we do not want to assign to reflexif (se)Lemma lines so only matching se and s'
+    return re.match("<.*"+field+":\(?[^,>]*\|?:contre-sn\|?[^,>]*\)?.*>", leff_data) is not None, re.match("<.*"+field+":[^,>\(]*\|?:contre-sn\|?[^,>)]*.*>", leff_data) is not None
+
+def match_pour(leff_data, field="Obl"):
+    # after deduplicating the lefff and "(se)" changed to "se" this means that we do not want to assign to reflexif (se)Lemma lines so only matching se and s'
+    return re.match("<.*"+field+":\(?[^,>]*\|?:pour-sn\|?[^,>]*\)?.*>", leff_data) is not None, re.match("<.*"+field+":[^,>\(]*\|?:pour-sn\|?[^,>)]*.*>", leff_data) is not None
+
+def match_par(leff_data, field="Obl"):
+    # after deduplicating the lefff and "(se)" changed to "se" this means that we do not want to assign to reflexif (se)Lemma lines so only matching se and s'
+    return re.match("<.*"+field+":\(?[^,>]*\|?:par-sn\|?[^,>]*\)?.*>", leff_data) is not None, re.match("<.*"+field+":[^,>\(]*\|?:par-sn\|?[^,>)]*.*>", leff_data) is not None
+
+def match_with(leff_data, field="Obl"):
+    # after deduplicating the lefff and "(se)" changed to "se" this means that we do not want to assign to reflexif (se)Lemma lines so only matching se and s'
+    return re.match("<.*"+field+":\(?[^,>]*\|?:with-sn\|?[^,>]*\)?.*>", leff_data) is not None, re.match("<.*"+field+":[^,>\(]*\|?:with-sn\|?[^,>)]*.*>", leff_data) is not None
+
+
+def match_vers(leff_data, field="Obl"):
+    # after deduplicating the lefff and "(se)" changed to "se" this means that we do not want to assign to reflexif (se)Lemma lines so only matching se and s'
+    return re.match("<.*"+field+":\(?[^,>]*\|?:vers-sn\|?[^,>]*\)?.*>", leff_data) is not None, re.match("<.*"+field+":[^,>\(]*\|?:vers-sn\|?[^,>)]*.*>", leff_data) is not None
 
 
 def extract_features_from_leff(lex_dir: Path, output_dir:str =None):
@@ -154,9 +164,6 @@ def extract_features_from_leff(lex_dir: Path, output_dir:str =None):
             if len(lex_line) <= 1:
                 continue
             feature_lex_line = lex_line[2].split(";")
-
-
-
             try:
                 assert feature_lex_line[3].startswith("<") and feature_lex_line[3].endswith(">"), f"{lex_line[2]} and {feature_lex_line[3]}"
             except:
@@ -207,7 +214,68 @@ def extract_features_from_leff(lex_dir: Path, output_dir:str =None):
                     continue
 
                 PREF = f"{PREFIX}"
-                comb_to_make = []
+                comb_to_make, obl_comb_to_make = [], []
+                obl_1_possible, obl_1_mandatory = [], []
+                obl_2_possible, obl_2_mandatory = [], []
+                # MATCH OBLIQ 1/2 : can add 0 if conditional
+                for match_code in ["avec", "pour", "par", "sur", "sous", "vers", "contre", "en", "après", "avant"]:
+                    if match_oblique(feature_lex_line[3], match_code)[0]:
+                        obl_1_possible.append(match_code)
+                    if match_oblique(feature_lex_line[3], match_code)[1]:
+                        obl_1_mandatory.append(match_code)
+                    #if entendre par
+                    #if lex_line[0] == "entendre" and match_code=="par":
+                    #    breakpoint()
+                    if match_oblique(feature_lex_line[3], match_code, "Obl2")[0]:
+                        obl_2_possible.append(match_code)
+                    if match_oblique(feature_lex_line[3], match_code, "Obl2")[1]:
+                        obl_2_mandatory.append(match_code)
+
+
+                # ALL COMBINATIONS
+                obl_code_ls = []
+                if len(obl_1_possible) == 0 and len(obl_2_possible) == 0:
+                    obl_code_ls.append("0")
+                else:
+                    _obl_code_ls = []
+                    if len(obl_1_possible) and len(obl_2_possible):
+                        for obl1 in obl_1_possible+["0"]:
+                            for obl2 in obl_2_possible+["0"]:
+                                _obl_code_ls.append(f"{obl1},{obl2}")
+                    elif len(obl_1_possible):
+                        for obl1 in obl_1_possible+["0"]:
+                            _obl_code_ls.append(f"{obl1},0")
+                    elif len(obl_2_possible):
+                        for obl2 in obl_2_possible+["0"]:
+                            _obl_code_ls.append(f"0,{obl2}")
+
+                    # filter
+                    for code in _obl_code_ls:
+                        val1 = code.split(",")[0]
+                        val2 = code.split(",")[1]
+
+                        # only one val
+                        if len(obl_1_mandatory) and len(obl_2_mandatory):
+                            #if both mandatory we check make sure there are both in the mandatories
+                            if val1 in obl_1_mandatory and val2 in obl_2_mandatory:
+                                obl_code_ls.append(code)
+                        elif len(obl_1_mandatory):
+                            # same as above for obL1
+                            if val1 in obl_1_mandatory:
+                                obl_code_ls.append(code)
+                        elif len(obl_2_mandatory):
+                            # same as above for obL2
+                            if val2 in obl_2_mandatory:
+                                obl_code_ls.append(code)
+                        else:
+                            # not mandatory one so we all of thiem
+                            obl_code_ls.append(code)
+
+
+
+                    #print(feature_lex_line[3], obl_code_ls)
+
+                # MATCH OBLIQ 2: can add 0 if conditional
                 for match_code, match_func in zip([#  "0",
                                                    "a",
                                                    "d", "l", "g"],
@@ -218,10 +286,6 @@ def extract_features_from_leff(lex_dir: Path, output_dir:str =None):
                     comb_to_make.append(match_func(feature_lex_line[3]))
                 # for reflexive only mandatory or not used
                 comb_to_make.append(["r"] if match_reflexif(feature_lex_line[1]) else ["0"])
-                #if match_reflexif(feature_lex_line[1]):
-                #    breakpoint()
-
-
 
                 try:
                     assert len([e for ls in comb_to_make for e in ls]), comb_to_make
@@ -251,8 +315,6 @@ def extract_features_from_leff(lex_dir: Path, output_dir:str =None):
                         raise(Exception(e))
 
                 # comb_to_make = [['a', '0'], ["d", "0"], ["g"], []]
-
-
 
                 mandatory_ls = []
                 for ipos, case in enumerate(comb_to_make):
@@ -335,81 +397,26 @@ def extract_features_from_leff(lex_dir: Path, output_dir:str =None):
 
                     code = PREF+code
 
-                    if code not in lex_alexina_2[lex_line[0]]:
-                        lex_alexina_2[lex_line[0]][code] = []
-                    # always être for reflexive verbs
-                    lex_alexina_2[lex_line[0]][code].append(get_aux(feature_lex=feature_lex_line[4]))
-                    #TODO NEED ALSO 1 val case
-                    #TODO: need 0 val case
+                    for obl_code in obl_code_ls:
+                        if "0" in obl_code:
+                            if len(obl_code)>1:
+                                obl_code = obl_code.split(",")
+                                if obl_code[0] == "0":
+                                    obl_code = obl_code[1]
+                                else:
+                                    obl_code = obl_code[0]
+                        code_final = f"{code}|{obl_code}"
 
+                        if code_final not in lex_alexina_2[lex_line[0]]:
+                            lex_alexina_2[lex_line[0]][code_final] = []
+                        # always être for reflexive verbs
+                        lex_alexina_2[lex_line[0]][code_final].append(get_aux(feature_lex=feature_lex_line[4]))
 
+                print("Featue", feature_lex_line[3])
                 print("Final:", ls_code)
-                ##if match_reflexif(feature_lex_line[1]):
-                #    print(comb_to_make, lex_line)
-                #    breakpoint()
-                if lex_line[0] == "bidonner":
-                    breakpoint()
+                print("Final Oblique:", obl_code_ls)
 
 
-
-
-
-                #CODE += f"{match_code}"
-
-
-
-                    
-                    
-
-            elif False:
-                # reflexif case
-                if match_genitif(leff_data=feature_lex_line[3]):
-                    CODE = f"{PREFIX}gr"
-                    lex_alexina[lex_line[0]]["cases"].append(CODE)
-                    if CODE not in lex_alexina_2[lex_line[0]]:
-                        lex_alexina_2[lex_line[0]][CODE] = []
-                    # always être for reflexive verbs
-                    lex_alexina_2[lex_line[0]][CODE].append(get_aux(feature_lex=feature_lex_line[4]))
-
-                if match_locatif(leff_data=feature_lex_line[3]):
-                    CODE = f"{PREFIX}lr"
-                    lex_alexina[lex_line[0]]["cases"].append(CODE)
-                    if CODE not in lex_alexina_2[lex_line[0]]:
-                        lex_alexina_2[lex_line[0]][CODE] = []
-                    # always être for reflexive verbs
-                    lex_alexina_2[lex_line[0]][CODE].append(get_aux(feature_lex=feature_lex_line[4]))
-
-                if match_datif(leff_data=feature_lex_line[3]):
-                    try:
-                        assert not (match_accusatif(leff_data=feature_lex_line[3], mandatory=True) and match_datif(leff_data=feature_lex_line[3], mandatory=True)), f"should not have se lemma with both {feature_lex_line} {lex_line}"
-                    except Exception as e:
-                        print(e)
-                        #raise(e)
-                    CODE = f"{PREFIX}dr"
-                    lex_alexina[lex_line[0]]["cases"].append(CODE)
-                    if CODE not in lex_alexina_2[lex_line[0]]:
-                        lex_alexina_2[lex_line[0]][CODE] = []
-                    # always être for reflexive verbs
-                    lex_alexina_2[lex_line[0]][CODE].append(get_aux(feature_lex=feature_lex_line[4]))
-                if match_accusatif(leff_data=feature_lex_line[3]):
-                    try:
-                        assert not (match_datif(leff_data=feature_lex_line[3], mandatory=True) and match_accusatif(leff_data=feature_lex_line[3], mandatory=True)), f"should not have se lemma with both {feature_lex_line} {lex_line}"
-                    except Exception as e:
-                        print(e)
-                    CODE = f"{PREFIX}ar"
-                    lex_alexina[lex_line[0]]["cases"].append(CODE)
-                    if CODE not in lex_alexina_2[lex_line[0]]:
-                        lex_alexina_2[lex_line[0]][CODE] = []
-                    # always être for reflexive verbs
-                    lex_alexina_2[lex_line[0]][CODE].append(get_aux(feature_lex=feature_lex_line[4]))
-
-                if not (match_datif(leff_data=feature_lex_line[3]) or match_accusatif(leff_data=feature_lex_line[3]) or match_genitif(leff_data=feature_lex_line[3]) or match_locatif(leff_data=feature_lex_line[3]) ):
-                    CODE = f"{PREFIX}r"
-                    lex_alexina[lex_line[0]]["cases"].append(CODE)
-                    if "r" not in lex_alexina_2[lex_line[0]]:
-                        lex_alexina_2[lex_line[0]][CODE] = []
-                    # always être for reflexive verbs
-                    lex_alexina_2[lex_line[0]][CODE].append("e")
 
         print(f"{len(lex_alexina)} verbs found in alexina skipped {skipping} lines, {skipping_no_bracket} no brackets, "
               f"{skipping_not_actif} not actif")
