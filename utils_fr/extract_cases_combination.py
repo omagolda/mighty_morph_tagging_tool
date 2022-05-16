@@ -218,7 +218,7 @@ def extract_features_from_leff(lex_dir: Path, output_dir:str =None):
                 obl_1_possible, obl_1_mandatory = [], []
                 obl_2_possible, obl_2_mandatory = [], []
                 # MATCH OBLIQ 1/2 : can add 0 if conditional
-                for match_code in ["avec", "pour", "par", "sur", "sous", "vers", "contre", "en", "après", "avant"]:
+                for match_code in ["avec", "pour", "par", "sur", "sous", "vers", "contre", "en"]:
                     if match_oblique(feature_lex_line[3], match_code)[0]:
                         obl_1_possible.append(match_code)
                     if match_oblique(feature_lex_line[3], match_code)[1]:

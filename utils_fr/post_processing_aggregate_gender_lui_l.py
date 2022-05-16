@@ -8,7 +8,7 @@ from tqdm import tqdm
 from pathlib import Path
 
 
-def aggregate_gender_mark(dir, output_dir, add_readme=False):
+def aggregate_gender_mark_space_sep_cleaning(dir, output_dir, add_readme=False):
     # handling DATIF lui and l' ACC FEM/MASC
     n_total = sum(1 for _ in open(dir, encoding="utf-8"))
     mighty_morph = {}
@@ -18,12 +18,20 @@ def aggregate_gender_mark(dir, output_dir, add_readme=False):
             line = line.strip().split("\t")
             lemma = line[0]
             form = line[1]
+            # removing double spacing
             form = re.sub('\\s+', ' ', form)
+
             features = line[2]
+
             if lemma not in mighty_morph:
                 mighty_morph[lemma] = {}
             if form not in mighty_morph[lemma]:
                 mighty_morph[lemma][form] = []
+
+            features = features.replace(";;", ";")
+            assert features.endswith(";"), f"{features}"
+
+            #assert len()
             mighty_morph[lemma][form].append(features)
 
     n_form_per_lemma = []
@@ -69,9 +77,12 @@ def aggregate_gender_mark(dir, output_dir, add_readme=False):
             readme.write(log)
             print(output_dir.parent/"readme_fr_final.txt", " readme written")
         print(log)
+        import json
+        with open(output_dir.parent/"list_lemma.txt", "w") as f:
+            f.write(str(list(mighty_morph.keys())))
 
 
 if __name__ == "__main__":
 
     path = Path('/Users/bemuller/Documents/Work/INRIA/dev/mighty_morph_tagging_tool')
-    aggregate_gender_mark(path/'mighty_morph'/'fr-w_leff.txt', path/'mighty_morph'/'fr-w_leff.txt', add_readme=True)
+    aggregate_gender_mark_space_sep_cleaning(path/'mighty_morph'/'fr-sanity-test.txt', path/'mighty_morph'/'fr-sanity-test-v.txt', add_readme=True)

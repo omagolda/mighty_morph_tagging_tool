@@ -46,23 +46,10 @@ def sanity_check_mighty_morph(file='fr-w_leff.txt', dir=""):
             mighty_morph_lemma_form[lemma_form].append(features)
 
     # check
-    n_doublon = 0
 
-    for lemma_feat_no_aux in tqdm(mighty_morph_lemma_feat_no_aux):
-        #try:
-        assert len(mighty_morph_lemma_feat_no_aux[lemma_feat_no_aux]) == 1, f"Doublon: (lemma, feature) not in injection with form {lemma_feat_no_aux} {mighty_morph_lemma_feat_no_aux[lemma_feat_no_aux]}"
-        #except Exception as e:
-        #    raise(e)
-        #    n_doublon += 1
-            #print(e)
-    #if n_doublon == 0:
-    print("AUX CAN BE REMOVED MATTERS from features: There is a unique form for each (lemma, feature without e/a)")
-    #else:
-    #    print(f"There is no bijeciton {n_doublon}/{len(mighty_morph_lemma_feat_no_aux)} doublons")
-    #breakpoint()
     for lemma_feat in tqdm(mighty_morph_lemma_feat):
         assert len(mighty_morph_lemma_feat[lemma_feat]) == 1, "doublon: (lemma, feature) not in injection with form "
-            #print("Doublon one lemma-feature --> is associated to two forms: ", lemma_feat,"-->", mighty_morph_lemma_feat[lemma_feat])
+
     print("There is a unique form for each (lemma, feature)")
 
     #  print("Doublon one lemma-feature --> is associated to two forms: ", lemma_feat,"-->", mighty_morph_lemma_feat[lemma_feat])
@@ -78,4 +65,6 @@ def sanity_check_mighty_morph(file='fr-w_leff.txt', dir=""):
 
 if __name__ == "__main__":
 
-    sanity_check_mighty_morph(file='fr-w_leff-TEST.txt',dir="/Users/bemuller/Documents/Work/INRIA/dev/mighty_morph_tagging_tool")
+    #sanity_check_mighty_morph(file='fr-v2.txt',dir="/Users/bemuller/Documents/Work/INRIA/dev/mighty_morph_tagging_tool")
+    sanity_check_mighty_morph(file='fr-sanity-test-v.txt', dir="/Users/bemuller/Documents/Work/INRIA/dev/mighty_morph_tagging_tool")
+    #
